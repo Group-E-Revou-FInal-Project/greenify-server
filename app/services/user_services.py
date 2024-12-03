@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Response, jsonify
 from sqlalchemy.exc import IntegrityError
 from app.configs.connector import db
@@ -23,10 +24,14 @@ class UserService:
     def check_otp(data):
         check_otp = TempUser.query.filter_by(email=data['email'], otp_code=data['otp_code']).first() 
         
+        if  check_otp.expires_at < datetime.now():
+            return jsonify({"error": "OTP has expired"}), 400
+        
         if check_otp is None:
             return jsonify({"error": "Invalid OTP"}), 400
         
         return jsonify({"success": "OTP verified"}), 200
+    
     def get_all_users():
         return User.query.all()
     

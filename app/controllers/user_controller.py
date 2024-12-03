@@ -2,7 +2,7 @@
 from email_validator import validate_email, EmailNotValidError
 from flask import Response, jsonify, request
 from app.services.user_services import UserService
-from app.utils.validators.temp_email import TempEmail
+from app.utils.validators.temp_email import OTPCode
 from app.utils.functions.generate_otp import generate_random_otp
 from flask_mail import Mail, Message
 from app import mail
@@ -37,8 +37,12 @@ class UserController:
     @staticmethod
     def check_otp():
         data = request.get_json()
+        try:
+            validate_otp = OTPCode.model_validate(data)
+        except ValueError as e:
+            return jsonify({"error": f"{str(e)}"}), 400
         
-        response = UserService.check_otp(data)
+        response = UserService.check_otp(validate_otp.model_dump())
         return response
     def get_all_users():
         return 200

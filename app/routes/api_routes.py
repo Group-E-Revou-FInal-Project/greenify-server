@@ -10,6 +10,7 @@ auth_bp = Blueprint('auth', __name__)
 
 # User Routes
 temp_bp.add_url_rule('/emailvalidate', view_func=UserController.temp_users, methods=['POST'])
+temp_bp.add_url_rule('/checkotp', view_func=UserController.check_otp, methods=['POST'])
 user_bp.add_url_rule('/users', view_func=UserController.get_all_users, methods=['POST'])
 
 
