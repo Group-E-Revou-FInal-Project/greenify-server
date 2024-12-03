@@ -1,4 +1,4 @@
 from pydantic import BaseModel, EmailStr
 
-class TempEmail(BaseModel):
-    email: EmailStr
+class OTPCode(BaseModel):
+    ootp_code: str

@@ -35,8 +35,11 @@ class UserController:
         return response
     
     @staticmethod
-    def get_all_users():
-        return 200
+    def check_otp():
+        data = request.get_json()
+        
+        response = UserService.check_otp(data)
+        return response
         
 
         
