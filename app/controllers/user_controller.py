@@ -40,6 +40,9 @@ class UserController:
         
         response = UserService.check_otp(data)
         return response
+    def get_all_users():
+        return 200
+
         
 
         

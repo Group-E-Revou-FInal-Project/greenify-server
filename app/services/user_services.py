@@ -27,6 +27,12 @@ class UserService:
             return jsonify({"error": "Invalid OTP"}), 400
         
         return jsonify({"success": "OTP verified"}), 200
+    def get_all_users():
+        return User.query.all()
+    
+    @staticmethod
+    def get_user_by_email(email):
+        return User.query.filter_by(email=email).first()
         
 # def success(data=None, message="Operation successful.", code=200):
 # def error(message="An error occurred.", code=400):
