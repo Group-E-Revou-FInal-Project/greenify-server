@@ -29,7 +29,7 @@ class AuthController:
 
         user = UserService.get_user_by_email(data['email'])
         if not user:
-            return Response.error("Invalid email", 401)
+            return Response.error("Account does not exist", 401)
 
         if not check_password_hash(user.password_hash, data['password']):
             return Response.error("Invalid password", 401)

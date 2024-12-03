@@ -37,6 +37,7 @@ class UserController:
     @staticmethod
     def get_all_users():
         return 200
+
         
 
         
