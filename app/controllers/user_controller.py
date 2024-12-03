@@ -3,5 +3,5 @@ from app.services.user_services import UserService
 class UserController:
     
     @staticmethod
-    def temp_users():
+    def get_all_users():
         return 200

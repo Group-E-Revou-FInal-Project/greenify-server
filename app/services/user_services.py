@@ -1,6 +1,7 @@
 from sqlalchemy.exc import IntegrityError
 from app.configs.connector import db
 from app.models.temp_users import TempUser
+from app.models.users import User
 
 class UserService:
     @staticmethod
@@ -14,3 +15,8 @@ class UserService:
             db.session.commit()
         except IntegrityError:
             return None
+        
+        
+    @staticmethod
+    def get_user_by_email(email):
+        return User.query.filter_by(email=email).first()
