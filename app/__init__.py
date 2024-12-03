@@ -25,10 +25,11 @@ def create_app():
     mail.init_app(app)
 
     # Register Blueprints
-    from app.routes.api_routes import user_bp, temp_bp
+    from app.routes.api_routes import user_bp, temp_bp,auth_bp
 
     app.register_blueprint(user_bp, url_prefix='/api/v1/users')
     app.register_blueprint(temp_bp, url_prefix='/api/v1/temp')
+    app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
     
     
     # Define basic routes for DB creation and seeding
