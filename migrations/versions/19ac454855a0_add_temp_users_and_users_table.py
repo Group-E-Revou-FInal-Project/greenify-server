@@ -1,8 +1,8 @@
-"""create users and temp_users table
+"""add temp_users and users table
 
-Revision ID: 125a36f5a89f
+Revision ID: 19ac454855a0
 Revises: 
-Create Date: 2024-12-03 21:06:03.734453
+Create Date: 2024-12-04 13:22:36.626543
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '125a36f5a89f'
+revision = '19ac454855a0'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -29,6 +29,7 @@ def upgrade():
     sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('otp_code', sa.String(length=255), nullable=False),
     sa.Column('expires_at', sa.DateTime(), nullable=False),
+    sa.Column('verified', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('otp_code')
     )
@@ -37,6 +38,7 @@ def upgrade():
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('dateofbirth', sa.DateTime(), nullable=False),
+    sa.Column('gender', sa.Enum('MALE', 'FEMALE', name='gender'), nullable=False),
     sa.Column('phone_number', sa.String(length=20), nullable=True),
     sa.Column('password_hash', sa.String(length=255), nullable=False),
     sa.Column('is_active', sa.Boolean(), nullable=True),
