@@ -41,10 +41,10 @@ class AuthController:
             return Response.error("Invalid password", 401)
 
         access_token = create_access_token(
-            identity={'user_id': user.id, 'role': user.roles[0].name},
+            identity=json.dumps({'user_id': user.id, 'role': user.roles[0].rolename}),
             expires_delta=datetime.timedelta(hours=1)
         )
-        refresh_token = create_refresh_token(identity={'user_id': user.id})
+        refresh_token = create_refresh_token(identity=json.dumps({'user_id': user.id}))
 
         if user.two_factor_secret:
             return Response.success(
