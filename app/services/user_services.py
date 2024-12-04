@@ -3,6 +3,8 @@ from flask import Response, jsonify
 from sqlalchemy.exc import IntegrityError
 from app.configs.connector import db
 from app.models.temp_users import TempUser
+from app.models.users import User
+from werkzeug.security import check_password_hash
 from app.models.users import User, Role
 
 class UserService:
@@ -25,15 +27,15 @@ class UserService:
     def otp_validation(data):
         check_otp = TempUser.query.filter_by(email=data['email'], otp_code=data['otp_code']).first() 
         check_email = User.query.filter_by(email=data['email']).first()
-        
+            
         if check_email is not None:
             return 'Email already registered'
+            
+        if check_otp is None:
+            return 'Invalid OTP code'
         
         if  check_otp.expires_at > datetime.now():
             return 'OTP code has expired'
-        
-        if check_otp is None:
-            return 'Invalid OTP code'
         
         check_otp.verified = True
         
@@ -53,7 +55,12 @@ class UserService:
         db.session.commit()
         
         return new_otp.to_dict()
-        
+    
+    
+    @staticmethod
+    def get_user_by_id(user_id):
+        return db.session.get(User, user_id)
+
     @staticmethod
     def register_user(data):
         verified_email = TempUser.query.filter_by(email=data['email'], verified=True).first()
@@ -128,3 +135,76 @@ class UserService:
     @staticmethod
     def get_user_by_email(email):
         return User.query.filter_by(email=email).first()
+    
+    
+    @staticmethod
+    def otp_validation_reset(data):
+        check_otp = TempUser.query.filter_by(email=data['email'], otp_code=data['otp_code']).first() 
+        check_email = User.query.filter_by(email=data['email']).first()
+        
+        if check_email is None:
+            return 'Email not registered'
+         
+        if check_otp is None:
+            return 'Invalid OTP code'
+        
+        if check_otp.expires_at > datetime.now():
+            return 'OTP code has expired'
+        
+        check_otp.verified = True
+        try:
+            db.session.add(check_otp)
+            db.session.commit()        
+        except IntegrityError:
+            db.session.rollback()
+            return 'ERROR otp code request does not exist'
+        return 'OTP code verified'
+    
+    @staticmethod
+    def reset_password(data):
+        validate_otp = {
+            "email": data['email'],
+            "otp_code": data['otp_code'],
+        }
+        email_record = TempUser.query.filter_by(email=data['email']).first()
+        response = UserService.otp_validation_reset(validate_otp)
+        if response != 'OTP code verified':
+            return {"error": response}
+
+        user = UserService.get_user_by_email(data['email'])
+        if not user:
+            return {"error": "User not found"}
+        try:
+            user.set_password(data['password'])
+            db.session.delete(email_record)
+            db.session.commit()
+        except Exception as error:
+            db.session.rollback()
+            return {"error": f"Failed to delete temporary email record: {str(error)}"}
+        return {"success": "Password reset successfully"}
+
+    @staticmethod
+    def change_password(data):
+        user = UserService.get_user_by_email(data['email'])
+        if not user:
+            return {"error": "User not found"}
+
+        if not check_password_hash(user.password_hash, data['previous_password']):
+            return {"error": "Invalid previous password"}
+
+        if data['previous_password'] == data['new_password']:
+            return {"error": "New password cannot be the same as the previous password"}
+
+        user.set_password(data['new_password'])
+
+        try:
+            db.session.commit()
+            return {"success": "Password changed successfully"}
+        except Exception as error:
+            db.session.rollback()
+            return {"error": f"Failed to change password: {str(error)}"}
+
+
+        
+# def success(data=None, message="Operation successful.", code=200):
+# def error(message="An error occurred.", code=400):

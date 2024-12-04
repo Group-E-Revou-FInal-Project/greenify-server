@@ -1,6 +1,7 @@
 from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
 from functools import wraps
 from flask import jsonify
+import json
 from app.services.user_services import UserService
 
 def token_required(fn):
@@ -14,7 +15,7 @@ def admin_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         verify_jwt_in_request()
-        user_id = get_jwt_identity()['user_id']
+        user_id = json.loads(get_jwt_identity())['user_id']
         user = UserService.get_user_by_id(user_id)
         if not any(role.name == 'Admin' for role in user.roles):
             return jsonify({'error': {'code': 403, 'message': 'Admin access required'}}), 403
@@ -25,7 +26,7 @@ def two_fa_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         verify_jwt_in_request()
-        user_id = get_jwt_identity()['user_id']
+        user_id = json.loads(get_jwt_identity())['user_id']
         user = UserService.get_user_by_id(user_id)
         # Check if the user has verified 2FA
         if not user.two_factor_verified:
