@@ -24,11 +24,12 @@ def create_app():
     jwt.init_app(app)
     mail.init_app(app)
 
-    # Register Blueprints
-    from app.routes.api_routes import user_bp, auth_bp
 
-    app.register_blueprint(user_bp, url_prefix='/api/v1/users')
-    app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
+
+    # Register Blueprints
+    from app.routes.api_routes import user_bp
+
+    app.register_blueprint(user_bp, url_prefix='/api/users')
     
     
     # Define basic routes for DB creation and seeding
