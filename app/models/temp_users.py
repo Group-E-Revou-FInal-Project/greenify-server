@@ -5,7 +5,7 @@ class TempUser(db.Model):
     __tablename__ = 'temp_users'
     
     id          = db.Column(db.Integer, primary_key=True)
-    email       = db.Column(db.String(255), unique=False, nullable=False)
+    email       = db.Column(db.String(255), unique=True, nullable=False)
     otp_code    = db.Column(db.String(255), unique=True, nullable=False)
     expires_at  = db.Column(db.DateTime, nullable=False)
     verified    = db.Column(db.Boolean, default=False, nullable=False)
