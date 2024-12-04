@@ -41,7 +41,7 @@ class AuthController:
             return Response.error("Invalid password", 401)
 
         access_token = create_access_token(
-            identity=json.dumps({'user_id': user.id, 'role': user.roles[0].rolename}),
+            identity=json.dumps({'user_id': user.id, 'role': user.roles[0].rolename,'email': user.email}),
             expires_delta=datetime.timedelta(hours=1)
         )
         refresh_token = create_refresh_token(identity=json.dumps({'user_id': user.id}))
@@ -70,7 +70,7 @@ class AuthController:
     @staticmethod
     def verify_2fa():
         data = request.get_json()
-        user_id = get_jwt_identity()['user_id']
+        user_id = json.loads(get_jwt_identity())['user_id']
         user = UserService.get_user_by_id(user_id)
 
         if not user.two_factor_secret:
@@ -93,7 +93,7 @@ class AuthController:
     @staticmethod
     def logout():
         try:
-            user_id = get_jwt_identity()['user_id']
+            user_id = json.loads(get_jwt_identity())['user_id']
             if user_id is None:
                 return Response.error("User ID is null", 400)
 
@@ -115,7 +115,7 @@ class AuthController:
 
     @staticmethod
     def enable_2fa():
-        user_id = get_jwt_identity()['user_id']
+        user_id = json.loads(get_jwt_identity())['user_id']
         user = UserService.get_user_by_id(user_id)
 
         secret = pyotp.random_base32()
@@ -156,8 +156,7 @@ class AuthController:
             message="Token refreshed.",
             code=200
         )
-
-
+        
     def forgot_password():
         data = request.get_json()
         if 'email' not in data or not data['email']:
@@ -171,6 +170,11 @@ class AuthController:
 
         if not email:
             return Response.error("Email is required", 400)
+        
+        
+        email_validate = UserService.get_user_by_email(email)
+        if not email_validate:
+            return Response.error("User not found", code=404)
 
         otp_code = generate_random_otp()
         data["otp_code"] = otp_code
@@ -208,7 +212,7 @@ class AuthController:
     
     def change_password():
         data = request.get_json()
-        user_email = get_jwt_identity()['email']
+        user_email = json.loads(get_jwt_identity())['email']
         data['email'] = user_email
         if 'otp_code' not in data or not data['otp_code']:
             return Response.error("OTP code is required", 400)
