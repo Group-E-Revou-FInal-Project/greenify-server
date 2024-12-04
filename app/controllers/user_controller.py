@@ -1,6 +1,7 @@
 # user_controller.py
 from email_validator import validate_email, EmailNotValidError
-from flask import Response, jsonify, request
+from flask import request
+from app.constants.response_status import Response
 from app.services.user_services import UserService
 from app.utils.validators.temp_email import OTPCode
 from app.utils.functions.generate_otp import generate_random_otp
@@ -15,7 +16,7 @@ class UserController:
             valid = validate_email(data['email'])  
             email = valid.email
         except EmailNotValidError as e:
-            return jsonify({"Invalid email": f"{str(e)}"}), 400
+            return Response.error(f"{str(e)}", 400)
         
         otp_code = generate_random_otp()
         data["otp_code"] = otp_code
@@ -28,7 +29,7 @@ class UserController:
             )
             mail.send(msg)
         except Exception as e:
-            return jsonify({"error": f"{str(e)}"}), 400
+            return Response.error(f"{str(e)}", 400)
         
         response = UserService.temp_users(data)
         
@@ -40,10 +41,28 @@ class UserController:
         try:
             validate_otp = OTPCode.model_validate(data)
         except ValueError as e:
-            return jsonify({"error": f"{str(e)}"}), 400
+            return Response.error(f"{str(e)}", 400)
         
         response = UserService.check_otp(validate_otp.model_dump())
-        return response
+        
+        if response == "OTP code has expired" or response is None:
+            return Response.error(message=response, code=400)
+        
+        return Response.success(message=response, code=200)
+    
+    @staticmethod
+    def register_user():
+        data = request.get_json()
+        response = UserService.register_user(data)
+        
+        if response == "Email not verified":
+            return Response.error(message=response, code=400)
+        
+        if response == "Email already exists":
+            return Response.error(message=response, code=400)
+        
+        return Response.success(data=response, message="register success", code=200)
+    
     def get_all_users():
         return 200
 

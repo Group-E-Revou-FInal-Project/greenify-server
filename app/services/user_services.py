@@ -15,22 +15,52 @@ class UserService:
         try:
             db.session.add(temp)
             db.session.commit()
-            return jsonify({"success": f"sent email to {data['email']}"}), 400
+            return temp.to_dict()
         except IntegrityError:
             db.session.rollback()
-            return jsonify({"error": "Email already exists"}), 400
+            return None
         
     @staticmethod
     def check_otp(data):
         check_otp = TempUser.query.filter_by(email=data['email'], otp_code=data['otp_code']).first() 
         
         if  check_otp.expires_at < datetime.now():
-            return jsonify({"error": "OTP has expired"}), 400
+            return 'OTP code has expired'
         
         if check_otp is None:
-            return jsonify({"error": "Invalid OTP"}), 400
+            return 'Invalid OTP code'
         
-        return jsonify({"success": "OTP verified"}), 200
+        check_otp.verified = True
+        
+        db.session.add(check_otp)
+        db.session.commit()
+        
+        return 'OTP code verified'
+    
+    @staticmethod
+    def register_user(data):
+        verified_email = TempUser.query.filter_by(email=data['email'], verified=True).first()
+        email_records = TempUser.query.filter_by(email=data['email']).all()
+        
+        if verified_email is None:
+            return 'Email not verified'
+        
+        new_user = User(name=data['name'], 
+                    email=data['email'], 
+                    dateofbirth=data['dateofbirth'], 
+                    gender=data['gender'])
+        
+        new_user.set_password(data['password'])
+        
+        try:
+            for email_record in email_records:
+                db.session.delete(email_record)
+            db.session.add(new_user)
+            db.session.commit()
+            return new_user.to_dict()
+        except IntegrityError:
+            db.session.rollback()
+            return "Email already exists"
     
     def get_all_users():
         return User.query.all()
@@ -38,6 +68,3 @@ class UserService:
     @staticmethod
     def get_user_by_email(email):
         return User.query.filter_by(email=email).first()
-        
-# def success(data=None, message="Operation successful.", code=200):
-# def error(message="An error occurred.", code=400):
