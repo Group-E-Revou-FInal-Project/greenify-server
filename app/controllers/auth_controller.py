@@ -1,4 +1,5 @@
 import datetime
+import json
 import pyotp  # For 2FA
 from flask import jsonify, request
 from app.configs.connector import db
@@ -40,14 +41,9 @@ class AuthController:
             return Response.error("Invalid password", 401)
 
         access_token = create_access_token(
-            identity={
-                'user_id': user.id,
-                'role': str(user.roles[0].rolename), 
-                'email': user.email
-            },
+            identity={'user_id': user.id, 'role': user.roles[0].name},
             expires_delta=datetime.timedelta(hours=1)
         )
-        
         refresh_token = create_refresh_token(identity={'user_id': user.id})
 
         if user.two_factor_secret:
