@@ -13,6 +13,7 @@ user_bp.add_url_rule('/otp-validation', view_func=UserController.otp_validation,
 user_bp.add_url_rule('/register', view_func=UserController.register_user, methods=['POST'])
 user_bp.add_url_rule('/users', view_func=UserController.get_all_users, methods=['POST'])
 user_bp.add_url_rule('/otp-refresh', view_func=UserController.otp_refresh, methods=['POST'])
+user_bp.add_url_rule('/add-role', view_func=UserController.add_role, methods=['POST'])
 
 
 # Authentication Routes

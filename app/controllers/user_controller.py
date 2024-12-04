@@ -3,7 +3,7 @@ from email_validator import validate_email, EmailNotValidError
 from flask import request
 from app.constants.response_status import Response
 from app.services.user_services import UserService
-from app.utils.validators import OTPCode, RegisterUser
+from app.utils.validators import OTPCode, RegisterUser, Role
 from app.utils.functions.generate_otp import generate_random_otp
 from flask_mail import Mail, Message
 from app import mail
@@ -93,6 +93,9 @@ class UserController:
         
         response = UserService.register_user(validate_user.model_dump())
         
+        if response == "Role not found":
+            return Response.error(message=response, code=400)
+        
         if response == "Email not verified":
             return Response.error(message=response, code=400)
         
@@ -100,6 +103,22 @@ class UserController:
             return Response.error(message=response, code=400)
         
         return Response.success(data=response, message="register success", code=200)
+    
+    @staticmethod
+    def add_role():
+        data = request.get_json()
+        
+        try:
+            validate_role = Role.model_validate(data)
+        except ValueError as e:
+            return Response.error(f"{str(e)}", 400)
+        
+        response = UserService.create_role(validate_role.model_dump())
+        
+        if response == "Role already exists":
+            return Response.error(message=response, code=400)
+        
+        return Response.success(data=response, message="Success add role", code=200)
     
     def get_all_users():
         return 200
