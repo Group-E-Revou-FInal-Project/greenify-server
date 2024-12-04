@@ -82,6 +82,11 @@ class UserService:
         except IntegrityError:
             db.session.rollback()
             return "Email already exists"
+        
+    @staticmethod
+    def get_user_data(data):
+        user = User.query.filter_by(id=data['id']).first()
+        return user.to_dict()
     
     @staticmethod
     def create_role(data):
@@ -95,8 +100,27 @@ class UserService:
             db.session.rollback()
             return "Role already exists"
     @staticmethod
-    def get_user_profile(data):
-        user = User.query.filter_by(id=data["id"], email=data['email']).first()
+    def get_user_profile(user_id):
+        user = User.query.filter_by(id=user_id).first()
+        
+        return user.to_dict()
+    
+    @staticmethod
+    def update_profile(user_id, data):
+        user = User.query.filter_by(id=user_id).first()
+        
+        if user is None:
+            return None
+        
+        user.name = data.get('name', user.name)
+        user.dateofbirth = data.get('dateofbirth', user.dateofbirth)
+        user.phone_number = data.get('phone_number', user.phone_number)
+        user.gender = data.get('gender', user.gender)
+        
+        db.session.add(user)
+        db.session.commit()
+        
+        return user.to_dict()
     
     def get_all_users():
         return User.query.all()

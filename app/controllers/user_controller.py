@@ -49,7 +49,7 @@ class UserController:
         
         response = UserService.otp_validation(validate_otp.model_dump())
         
-        if response == "OTP code has expired" or response is None:
+        if response != 'OTP code verified':
             return Response.error(message=response, code=400)
         
         return Response.success(message=response, code=200)

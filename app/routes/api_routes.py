@@ -1,10 +1,12 @@
 from flask import Blueprint
 from app.controllers.user_controller import UserController
 from app.controllers.auth_controller import AuthController
+from app.controllers.profile_controller import ProfileController
 from app.middlewares.auth_middleware import admin_required, token_required, two_fa_required 
 
 
 user_bp = Blueprint('users', __name__)
+profile_bp = Blueprint('profile', __name__)
 auth_bp = Blueprint('auth', __name__) 
 
 # User Routes
@@ -14,6 +16,10 @@ user_bp.add_url_rule('/register', view_func=UserController.register_user, method
 user_bp.add_url_rule('/users', view_func=UserController.get_all_users, methods=['POST'])
 user_bp.add_url_rule('/otp-refresh', view_func=UserController.otp_refresh, methods=['POST'])
 user_bp.add_url_rule('/add-role', view_func=UserController.add_role, methods=['POST'])
+
+# Profile Routes
+profile_bp.add_url_rule('/me', view_func=ProfileController.get_profile_data, methods=['GET'])
+profile_bp.add_url_rule('/me', view_func=ProfileController.update_profile, methods=['PUT'])
 
 
 # Authentication Routes

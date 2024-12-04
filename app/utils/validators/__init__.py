@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel, EmailStr
 from app.models.users import Gender
 
@@ -16,3 +17,9 @@ class RegisterUser(BaseModel):
     
 class Role(BaseModel):
     rolename: str
+    
+class UpdateProfile(BaseModel):
+    name: Optional[str] = None
+    dateofbirth: Optional[datetime] = None
+    gender: Optional[Gender] = None
+    phone_number: Optional[str] = None
