@@ -11,4 +11,8 @@ class RegisterUser(BaseModel):
     email: EmailStr
     dateofbirth: datetime
     gender: Gender
+    role: str
     password: str
+    
+class Role(BaseModel):
+    rolename: str

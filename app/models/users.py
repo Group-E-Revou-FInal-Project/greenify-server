@@ -12,17 +12,17 @@ user_roles = db.Table('user_roles',
 class User(db.Model):
     __tablename__ = 'users'
     
-    id          = db.Column(db.Integer, primary_key=True)
-    name        = db.Column(db.String(255), unique=False, nullable=False)
-    email       = db.Column(db.String(255), unique=True, nullable=False)
-    dateofbirth = db.Column(db.DateTime, nullable=False)
-    gender      = db.Column(Enum(Gender), nullable=False)
-    phone_number = db.Column(db.String(20), default=None, nullable=True)
-    password_hash = db.Column(db.String(255), nullable=False)
-    is_active    = db.Column(db.Boolean, default=True)
-    oauth_id     = db.Column(db.String(255), nullable=True)
-    oauth_provider = db.Column(db.String(255), nullable=True)
-    two_factor_secret = db.Column(db.String(255), nullable=True)  
+    id                  = db.Column(db.Integer, primary_key=True)
+    name                = db.Column(db.String(255), unique=False, nullable=False)
+    email               = db.Column(db.String(255), unique=True, nullable=False)
+    dateofbirth         = db.Column(db.DateTime, nullable=False)
+    gender              = db.Column(Enum(Gender), nullable=False)
+    phone_number        = db.Column(db.String(20), default=None, nullable=True)
+    password_hash       = db.Column(db.String(255), nullable=False)
+    is_active           = db.Column(db.Boolean, default=True)
+    oauth_id            = db.Column(db.String(255), nullable=True)
+    oauth_provider      = db.Column(db.String(255), nullable=True)
+    two_factor_secret   = db.Column(db.String(255), nullable=True)  
     two_factor_verified = db.Column(db.Boolean, default=False)  
     
     

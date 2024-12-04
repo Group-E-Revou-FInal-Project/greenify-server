@@ -3,7 +3,7 @@ from flask import Response, jsonify
 from sqlalchemy.exc import IntegrityError
 from app.configs.connector import db
 from app.models.temp_users import TempUser
-from app.models.users import User
+from app.models.users import User, Role
 
 class UserService:
     @staticmethod
@@ -54,11 +54,14 @@ class UserService:
         
         return new_otp.to_dict()
         
-    
     @staticmethod
     def register_user(data):
         verified_email = TempUser.query.filter_by(email=data['email'], verified=True).first()
-        email_records = TempUser.query.filter_by(email=data['email']).all()
+        email_record = TempUser.query.filter_by(email=data['email']).first()
+        role = Role.query.filter_by(rolename=data['role']).first()
+        
+        if role is None:
+            return 'Role not found'
         
         if verified_email is None:
             return 'Email not verified'
@@ -69,16 +72,31 @@ class UserService:
                     gender=data['gender'])
         
         new_user.set_password(data['password'])
+        new_user.roles.append(role)
         
         try:
-            for email_record in email_records:
-                db.session.delete(email_record)
+            db.session.delete(email_record)
             db.session.add(new_user)
             db.session.commit()
             return new_user.to_dict()
         except IntegrityError:
             db.session.rollback()
             return "Email already exists"
+    
+    @staticmethod
+    def create_role(data):
+        new_role = Role(rolename=data['rolename'])
+        
+        try:
+            db.session.add(new_role)
+            db.session.commit()
+            return new_role.to_dict()
+        except IntegrityError:
+            db.session.rollback()
+            return "Role already exists"
+    @staticmethod
+    def get_user_profile(data):
+        user = User.query.filter_by(id=data["id"], email=data['email']).first()
     
     def get_all_users():
         return User.query.all()
