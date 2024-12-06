@@ -129,15 +129,19 @@ class AuthController:
         current_otp = totp.now()
 
         try:
-            msg = Message(
-                subject="Enable 2FA for Your Account",
-                recipients=[user.email],
-                body=f"Revou Bank Authenticator\n\n"
-                    f"OTP Code: {current_otp}\n"
-                    f"Provisioning URL: {otp_provisioning_url}"
-            )
-            mail.send(msg)
-
+            user_email = user.email  # Use the validated email
+            recipient_name = user.name if user.name else "Pengguna"
+            subject = "Greenify Enable 2FA for Your Account"
+            header = "Grennify"
+            content = f"""
+            <p>Hai, {recipient_name}!</p>
+            <p>Gunakan kode OTP di bawah ini untuk dapat melakukan verifikasi 2FA pada akun Anda:</p>
+            <h3 style="color: #32a852; text-align: center;">{current_otp}</h3>
+            <p>OTP hanya berlaku selama 1 menit:</p>
+            <p><a href="https://example.com/provisioning?otp={current_otp}" style="color: #32a852; text-decoration: none;">https://example.com/provisioning?otp={current_otp}</a></p>
+            """
+            send_email(user_email, header, content, subject)
+        
             return Response.success(
                 data={"message": "2FA enabled and setup email sent"},
                 message="2FA enabled.",
@@ -175,16 +179,39 @@ class AuthController:
         email_validate = UserService.get_user_by_email(email)
         if not email_validate:
             return Response.error("User not found", code=404)
-
+        
         otp_code = generate_random_otp()
         data["otp_code"] = otp_code
 
-        response = UserService.temp_users(data)
+        
+        validateUser = UserService.temp_user_forgot_password(email)
+        if validateUser:
+            try:
+                db.session.delete(validateUser)
+                db.session.commit()
+            except Exception as error:
+                db.session.rollback()
+                return {"error": f"Failed to delete temporary email record: {str(error)}"}
+            
+        response = UserService.temp_users(data,True)
         if response is not None:
-            response = send_email("Password Reset OTP Code", [email], f"Greenify OTP code for password reset: {otp_code}, expires in 1 minute")
+            user_email = email  # Use the validated email
+            recipient_name = email_validate.name if email_validate.name else "Pengguna"
+            subject = "Greenify reset password verification code"
+            header = "Grennify"
+            content = f"""
+            <p>Hai, {recipient_name}!</p>
+            <p>Gunakan kode OTP di bawah ini untuk dapat melakukan reset password pada akun Anda:</p>
+            <h3 style="color: #32a852; text-align: center;">{otp_code}</h3>
+            <p>OTP hanya berlaku selama 1 menit:</p>
+            <p><a href="https://example.com/provisioning?otp={otp_code}" style="color: #32a852; text-decoration: none;">https://example.com/provisioning?otp={otp_code}</a></p>
+            """
+            response = send_email(user_email, header, content, subject)
             if response is not None and 'error' in response:
                 return Response.error(response['error'], 400)
-                
+            
+        
+
         return Response.success("Reset password verification code has been sent", 200)
     
     def forgot_change_password():

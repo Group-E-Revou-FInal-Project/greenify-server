@@ -3,6 +3,7 @@ from email_validator import validate_email, EmailNotValidError
 from flask import request
 from app.constants.response_status import Response
 from app.services.user_services import UserService
+from app.utils.functions.send_emails import send_email
 from app.utils.validators import OTPCode, RegisterUser, Role
 from app.utils.functions.generate_otp import generate_random_otp
 from flask_mail import Mail, Message
@@ -27,12 +28,19 @@ class UserController:
             return Response.error(message="Email already exist", code=400)
             
         try:
-            msg = Message(
-                subject="Verication OTP Code Greenify",
-                recipients=[email],
-                body=f"Greenify OTP code for email validation: {otp_code}, expires in 1 minute"
-            )
-            mail.send(msg)
+            
+            user_email = email  # Use the validated email
+            recipient_name = "Pengguna"
+            subject = "Greenify verification OTP code for registration"
+            header = "Grennify"
+            content = f"""
+            <p>Hai, {recipient_name}!</p>
+            <p>Gunakan kode OTP di bawah ini untuk dapat melakukan verifikasi OTP pada akun Anda:</p>
+            <h3 style="color: #32a852; text-align: center;">{otp_code}</h3>
+            <p>OTP hanya berlaku selama 1 menit:</p>
+            <p><a href="https://example.com/provisioning?otp={otp_code}" style="color: #32a852; text-decoration: none;">https://example.com/provisioning?otp={otp_code}</a></p>
+            """
+            send_email(user_email, header, content, subject)
         except Exception as e:
             return Response.error(f"{str(e)}", 400)
     
@@ -71,12 +79,19 @@ class UserController:
         response = UserService.otp_refresh(data)
         
         try:
-            msg = Message(
-                subject="Verication OTP Code Greenify",
-                recipients=[email],
-                body=f"Greenify OTP code for email validation: {new_otp}, expires in 1 minute"
-            )
-            mail.send(msg)
+            user_email = email  # Use the validated email
+            recipient_name = "Pengguna"
+            subject = "Greenify verification OTP code refresh"
+            header = "Grennify"
+            content = f"""
+            <p>Hai, {recipient_name}!</p>
+            <p>Gunakan kode OTP di bawah ini untuk dapat melakukan verifikasi OTP pada akun Anda:</p>
+            <h3 style="color: #32a852; text-align: center;">{new_otp}</h3>
+            <p>OTP hanya berlaku selama 1 menit:</p>
+            <p><a href="https://example.com/provisioning?otp={new_otp}" style="color: #32a852; text-decoration: none;">https://example.com/provisioning?otp={new_otp}</a></p>
+            """
+            send_email(user_email, header, content, subject)
+        
         except Exception as e:
             return Response.error(f"{str(e)}", 400)
         

@@ -10,11 +10,12 @@ from app.models.categories import Category
 
 class UserService:
     @staticmethod
-    def temp_users(data):
+    def temp_users(data, verified=None): 
+        if verified is None: verified = False
         temp = TempUser(email=data['email'],
                         otp_code=data['otp_code'])
         temp.set_expiration(1) # 1 minute
-        
+        temp.verified = verified
         try:
             db.session.add(temp)
             db.session.commit()
@@ -147,6 +148,11 @@ class UserService:
     @staticmethod
     def get_user_by_email(email):
         return User.query.filter_by(email=email).first()
+    
+    
+    @staticmethod
+    def temp_user_forgot_password(email):
+        return TempUser.query.filter_by(email=email, verified=True).first()
     
     
     @staticmethod
