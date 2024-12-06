@@ -6,7 +6,7 @@ from app.models.temp_users import TempUser
 from app.models.users import User
 from werkzeug.security import check_password_hash
 from app.models.users import User, Role
-from app.models.interests import Interest
+from app.models.categories import Category
 
 class UserService:
     @staticmethod
@@ -75,13 +75,14 @@ class UserService:
         if role is None:
             return 'Role not found'
 
-        interests = []
-        for interest_name in data['interests']:
-            interest = Interest.query.filter_by(interest=interest_name).first()
-            interests.append(interest)
-        
         if not isinstance(data.get('interests'), list) or len(data['interests']) != 3:
             return 'You must provide exactly 3 interests'
+        
+        interests = []
+        for interest_name in data['interests']:
+            interest = Category.query.filter_by(category_name=interest_name).first()
+            interests.append(interest)
+        
         
         new_user = User(name=data['name'], 
                     email=data['email'], 
@@ -117,18 +118,6 @@ class UserService:
         except IntegrityError:
             db.session.rollback()
             return "Role already exists"
-        
-    @staticmethod
-    def add_interest(data):
-        new_interest = Interest(interest=data['interest'])
-        
-        try:
-            db.session.add(new_interest)
-            db.session.commit()
-            return new_interest.to_dict()
-        except IntegrityError:
-            db.session.rollback()
-            return "Interest already exists"
     
     @staticmethod
     def get_user_profile(user_id):

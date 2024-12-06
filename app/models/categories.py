@@ -8,11 +8,10 @@ class Category(db.Model):
     category_name = db.Column(db.String, unique=True, nullable=False)
     created_at    = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at    = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc))
-    is_deleted = db.Column(db.Boolean, default=False)
+    is_deleted    = db.Column(db.Boolean, default=False)
     
     #Realationship
     products  = db.relationship('Product', backref='categories', lazy=True)
-    interests = db.relationship('Interest', backref='categories', lazy=True)
     
     def to_dict(self):
         return {

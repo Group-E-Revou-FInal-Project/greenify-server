@@ -30,11 +30,11 @@ class Product(db.Model):
             'product_name': self.product_name,
             'price': self.price,
             'product_desc': self.product_desc,
-            'stok': self.stok,
-            'min_stok': self.min_stok,
+            'stok': self.stock,
+            'min_stok': self.min_stock,
             'category_id': self.category_id,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
             'eco_point': self.eco_point,
-            'recycle_material': self.recycle_material
+            'recycle_material': self.recycle_material_percentage
         }

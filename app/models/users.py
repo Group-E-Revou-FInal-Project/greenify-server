@@ -11,7 +11,7 @@ user_roles = db.Table('user_roles',
 
 user_interests = db.Table('user_interests',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
-    db.Column('interest_id', db.Integer, db.ForeignKey('interests.id'), primary_key=True))
+    db.Column('category_id', db.Integer, db.ForeignKey('categories.id'), primary_key=True))
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -35,7 +35,7 @@ class User(db.Model):
     
     #Relationship
     roles    = db.relationship('Role', secondary=user_roles, backref=db.backref('users', lazy=True))
-    interests = db.relationship('Interest', secondary=user_interests, backref=db.backref('users', lazy=True))
+    interests = db.relationship('Category', secondary=user_interests, backref=db.backref('users', lazy=True))
 
     
     def set_password(self, password):
