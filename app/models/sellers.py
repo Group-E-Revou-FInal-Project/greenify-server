@@ -16,7 +16,7 @@ class Seller(db.Model):
 
     # Relationship
     user = db.relationship('User', backref=db.backref('seller_profile', lazy=True))
-    products = db.relationship('Product', backref='seller_profile', lazy=True)
+    products_list = db.relationship('Product', backref=db.backref('seller_profile', lazy=True))
 
     def to_dict(self):
         return {

@@ -11,7 +11,7 @@ class Category(db.Model):
     is_deleted    = db.Column(db.Boolean, default=False)
     
     #Realationship
-    products  = db.relationship('Product', backref='categories', lazy=True)
+    products_list  = db.relationship('Product', backref='categories', lazy=True)
     
     def to_dict(self):
         return {
