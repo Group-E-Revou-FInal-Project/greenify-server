@@ -25,7 +25,7 @@ def send_email(user_email, header, content, subject):
     """
     try:
         msg = Message(
-            subject="Enable 2FA for Your Account",
+            subject= subject,
             recipients=[user_email],
             html=html_content
         )
