@@ -6,6 +6,7 @@ from app.models.temp_users import TempUser
 from app.models.users import User
 from werkzeug.security import check_password_hash
 from app.models.users import User, Role
+from app.models.categories import Category
 
 class UserService:
     @staticmethod
@@ -68,11 +69,20 @@ class UserService:
         email_record = TempUser.query.filter_by(email=data['email']).first()
         role = Role.query.filter_by(rolename=data['role']).first()
         
-        if role is None:
-            return 'Role not found'
-        
         if verified_email is None:
             return 'Email not verified'
+
+        if role is None:
+            return 'Role not found'
+
+        if not isinstance(data.get('interests'), list) or len(data['interests']) != 3:
+            return 'You must provide exactly 3 interests'
+        
+        interests = []
+        for interest_name in data['interests']:
+            interest = Category.query.filter_by(category_name=interest_name).first()
+            interests.append(interest)
+        
         
         new_user = User(name=data['name'], 
                     email=data['email'], 
@@ -81,6 +91,7 @@ class UserService:
         
         new_user.set_password(data['password'])
         new_user.roles.append(role)
+        new_user.interests.extend(interests)
         
         try:
             db.session.delete(email_record)
@@ -107,6 +118,7 @@ class UserService:
         except IntegrityError:
             db.session.rollback()
             return "Role already exists"
+    
     @staticmethod
     def get_user_profile(user_id):
         user = User.query.filter_by(id=user_id).first()
@@ -137,11 +149,9 @@ class UserService:
     def get_user_by_email(email):
         return User.query.filter_by(email=email).first()
     
-    
     @staticmethod
     def temp_user_forgot_password(email):
         return TempUser.query.filter_by(email=email, verified=True).first()
-    
     
     @staticmethod
     def otp_validation_reset(data):
@@ -209,8 +219,3 @@ class UserService:
         except Exception as error:
             db.session.rollback()
             return {"error": f"Failed to change password: {str(error)}"}
-
-
-        
-# def success(data=None, message="Operation successful.", code=200):
-# def error(message="An error occurred.", code=400):

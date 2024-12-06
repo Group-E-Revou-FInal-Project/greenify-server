@@ -2,12 +2,16 @@ from flask import Blueprint
 from app.controllers.user_controller import UserController
 from app.controllers.auth_controller import AuthController
 from app.controllers.profile_controller import ProfileController
+from app.controllers.product_controller import ProductController
+from app.controllers.seller_controller import SellerController
 from app.middlewares.auth_middleware import admin_required, token_required, two_fa_required 
 
 
 user_bp = Blueprint('users', __name__)
 profile_bp = Blueprint('profile', __name__)
 auth_bp = Blueprint('auth', __name__) 
+product_bp = Blueprint('product', __name__)
+seller_bp = Blueprint('seller', __name__)
 
 # User Routes
 user_bp.add_url_rule('/email-validation', view_func=UserController.email_validaton, methods=['POST'])
@@ -22,6 +26,12 @@ user_bp.add_url_rule('/change-password', view_func=AuthController.change_passwor
 profile_bp.add_url_rule('/me', view_func=ProfileController.get_profile_data, methods=['GET'])
 profile_bp.add_url_rule('/me', view_func=ProfileController.update_profile, methods=['PUT'])
 
+# Product Routes
+product_bp.add_url_rule('/category', view_func=ProductController.add_category, methods=['POST'])
+product_bp.add_url_rule('/product', view_func=ProductController.add_product, methods=['POST'])
+
+# Seller Routes
+seller_bp.add_url_rule('/create-seller', view_func=SellerController.create_seller, methods=['POST'])
 
 # Authentication Routes
 auth_bp.add_url_rule('/login', view_func=AuthController.login, methods=['POST'])
