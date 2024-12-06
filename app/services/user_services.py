@@ -149,11 +149,9 @@ class UserService:
     def get_user_by_email(email):
         return User.query.filter_by(email=email).first()
     
-    
     @staticmethod
     def temp_user_forgot_password(email):
         return TempUser.query.filter_by(email=email, verified=True).first()
-    
     
     @staticmethod
     def otp_validation_reset(data):
