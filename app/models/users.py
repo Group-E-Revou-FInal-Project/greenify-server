@@ -37,7 +37,6 @@ class User(db.Model):
     roles    = db.relationship('Role', secondary=user_roles, backref=db.backref('users', lazy=True))
     interests = db.relationship('Category', secondary=user_interests, backref=db.backref('users', lazy=True))
 
-    
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 

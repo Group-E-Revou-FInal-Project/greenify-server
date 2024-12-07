@@ -12,7 +12,6 @@ class SellerService():
                             address=data['address'], 
                             phone_number=data['phone_number'])
         
-        
         try:
             db.session.add(new_seller)
             db.session.commit()

@@ -48,3 +48,7 @@ class AddProduct(BaseModel):
     eco_point: int
     recycle_material_percentage: int
     image_url: str
+    
+class UpdateProduct(BaseModel):
+    product_name: Optional[str] = None
+    

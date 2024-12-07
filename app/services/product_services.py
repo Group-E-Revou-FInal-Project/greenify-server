@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from app.configs.connector import db
 from app.models.products import Product
 from app.models.categories import Category
+from app.models.users import User
 
 
 class ProductService:
@@ -38,6 +39,33 @@ class ProductService:
         except IntegrityError:
             db.session.rollback()
             return None
+        
+    @staticmethod
+    def update_product(user_id, product_id, data):
+        product = Product.query.filter_by(id=product_id).first()
+        user_check = User.query.filter_by(id=user_id).first()
+        
+        if product is None:
+            return "product not found"
+        
+        if product.seller_id != user_check.seller_profile.id:
+            return "seller id does not match"
+        
+        product.product_name = data.get('product_name', product.product_name)
+        product.price = data.get('price', product.price)
+        product.discount = data.get('discount', product.discount)
+        product.product_desc = data.get('product_desc', product.product_desc)
+        product.stock = data.get('stock', product.stock)
+        product.min_stock = data.get('min_stock', product.min_stock)
+        product.category_id = data.get('category_id', product.category_id)
+        product.eco_point = data.get('eco_point', product.eco_point)
+        product.recycle_material_percentage = data.get('recycle_material_percentage', product.recycle_material_percentage)
+        product.image_url = data.get('image_url', product.image_url)
+        
+        db.session.add(product)
+        db.session.commit()
+        
+        return product.to_dict()
         
     @staticmethod
     def get_all_categories():

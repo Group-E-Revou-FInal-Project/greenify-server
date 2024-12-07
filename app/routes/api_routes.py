@@ -4,7 +4,7 @@ from app.controllers.auth_controller import AuthController
 from app.controllers.profile_controller import ProfileController
 from app.controllers.product_controller import ProductController
 from app.controllers.seller_controller import SellerController
-from app.middlewares.auth_middleware import admin_required, token_required, two_fa_required 
+from app.middlewares.auth_middleware import admin_required, seller_required, token_required, two_fa_required 
 
 
 user_bp = Blueprint('users', __name__)
@@ -28,7 +28,8 @@ profile_bp.add_url_rule('/me', view_func=ProfileController.update_profile, metho
 
 # Product Routes
 product_bp.add_url_rule('/category', view_func=ProductController.add_category, methods=['POST'])
-product_bp.add_url_rule('/product', view_func=ProductController.add_product, methods=['POST'])
+product_bp.add_url_rule('/product', view_func=token_required(seller_required(ProductController.add_product)), methods=['POST'])
+product_bp.add_url_rule('/product/<int:id>', view_func=token_required(seller_required(ProductController.update_product)), methods=['PUT'])
 
 # Seller Routes
 seller_bp.add_url_rule('/create-seller', view_func=token_required(SellerController.create_seller), methods=['POST'])
