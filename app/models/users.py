@@ -11,7 +11,9 @@ user_roles = db.Table('user_roles',
 
 user_interests = db.Table('user_interests',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
-    db.Column('category_id', db.Integer, db.ForeignKey('categories.id'), primary_key=True))
+    db.Column('category_id', db.Integer, db.ForeignKey('categories.id'), primary_key=True),
+    db.UniqueConstraint('user_id', 'category_id', name='uix_user_category')
+)
 
 class User(db.Model):
     __tablename__ = 'users'

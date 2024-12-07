@@ -51,4 +51,13 @@ class AddProduct(BaseModel):
     
 class UpdateProduct(BaseModel):
     product_name: Optional[str] = None
+
+class user_interest(BaseModel):
+    user_id: int
+    category_id: int   
+    
+class changePassword(BaseModel):
+    email: str
+    otp_code: str  
+    password : str
     

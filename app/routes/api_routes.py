@@ -4,7 +4,8 @@ from app.controllers.auth_controller import AuthController
 from app.controllers.profile_controller import ProfileController
 from app.controllers.product_controller import ProductController
 from app.controllers.seller_controller import SellerController
-from app.middlewares.auth_middleware import admin_required, seller_required, token_required, two_fa_required 
+from app.controllers.UserInterestController import UserInterestController
+from app.middlewares.auth_middleware import admin_required,seller_required, token_required, two_fa_required 
 
 
 user_bp = Blueprint('users', __name__)
@@ -12,6 +13,7 @@ profile_bp = Blueprint('profile', __name__)
 auth_bp = Blueprint('auth', __name__) 
 product_bp = Blueprint('product', __name__)
 seller_bp = Blueprint('seller', __name__)
+
 
 # User Routes
 user_bp.add_url_rule('/email-validation', view_func=UserController.email_validaton, methods=['POST'])
@@ -25,11 +27,18 @@ user_bp.add_url_rule('/change-password', view_func=AuthController.change_passwor
 # Profile Routes
 profile_bp.add_url_rule('/me', view_func=ProfileController.get_profile_data, methods=['GET'])
 profile_bp.add_url_rule('/me', view_func=ProfileController.update_profile, methods=['PUT'])
+profile_bp.add_url_rule('/interests', view_func=token_required(UserInterestController.add_interest), methods=['POST'])
+profile_bp.add_url_rule('/interests', view_func=token_required(UserInterestController.get_interests), methods=['GET'])
+profile_bp.add_url_rule('/interests', view_func=token_required(UserInterestController.remove_interest), methods=['DELETE'])
 
 # Product Routes
 product_bp.add_url_rule('/category', view_func=ProductController.add_category, methods=['POST'])
 product_bp.add_url_rule('/product', view_func=token_required(seller_required(ProductController.add_product)), methods=['POST'])
 product_bp.add_url_rule('/product/<int:id>', view_func=token_required(seller_required(ProductController.update_product)), methods=['PUT'])
+product_bp.add_url_rule('/product', view_func=ProductController.add_product, methods=['POST'])
+product_bp.add_url_rule('/recommendation', view_func=token_required(ProductController.recommendation_product), methods=['GET'])
+
+
 
 # Seller Routes
 seller_bp.add_url_rule('/create-seller', view_func=token_required(SellerController.create_seller), methods=['POST'])
@@ -42,4 +51,7 @@ auth_bp.add_url_rule('/verify-2fa', view_func=token_required(AuthController.veri
 auth_bp.add_url_rule('/refresh', view_func=AuthController.refresh_token, methods=['POST'])  # Refresh JWT token
 auth_bp.add_url_rule('/forgot-password', view_func=AuthController.forgot_password, methods=['POST'])
 auth_bp.add_url_rule('/forgot-change-password', view_func=AuthController.forgot_change_password, methods=['POST'])
+
+
+
 

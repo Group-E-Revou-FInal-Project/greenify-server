@@ -8,7 +8,7 @@ def user_validation(user_id):
             return {"error": "User is not found"}
         if user.is_active == False:
             return {"error": "User is not active"}
-        return user
+        return None
     except Exception as e:
         error_message = {"error": f"Error sending email: {str(e)}"}
         return error_message
