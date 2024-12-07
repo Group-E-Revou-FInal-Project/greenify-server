@@ -37,7 +37,7 @@ class ProductService:
             return new_product.to_dict()
         except IntegrityError:
             db.session.rollback()
-            return "Ops, something went wrong"
+            return None
         
     @staticmethod
     def get_all_categories():

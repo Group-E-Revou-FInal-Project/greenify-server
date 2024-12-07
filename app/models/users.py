@@ -56,7 +56,7 @@ class User(db.Model):
             'created_at' : self.created_at.isoformat(),
             'updated_at' : self.updated_at.isoformat() if self.updated_at else None,
             'roles': [role.to_dict() for role in self.roles],
-            'interests': [interest.to_dict() for interest in self.interest]
+            'interests': [interest.to_dict() for interest in self.interests]
         }
         
     

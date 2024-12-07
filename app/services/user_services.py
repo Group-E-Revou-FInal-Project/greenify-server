@@ -74,7 +74,7 @@ class UserService:
 
         if role is None:
             return 'Role not found'
-
+        print(data['interests'])
         if not isinstance(data.get('interests'), list) or len(data['interests']) != 3:
             return 'You must provide exactly 3 interests'
         
