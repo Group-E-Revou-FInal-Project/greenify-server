@@ -31,7 +31,7 @@ product_bp.add_url_rule('/category', view_func=ProductController.add_category, m
 product_bp.add_url_rule('/product', view_func=ProductController.add_product, methods=['POST'])
 
 # Seller Routes
-seller_bp.add_url_rule('/create-seller', view_func=SellerController.create_seller, methods=['POST'])
+seller_bp.add_url_rule('/create-seller', view_func=token_required(SellerController.create_seller), methods=['POST'])
 
 # Authentication Routes
 auth_bp.add_url_rule('/login', view_func=AuthController.login, methods=['POST'])

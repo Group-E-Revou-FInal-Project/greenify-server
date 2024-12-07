@@ -1,4 +1,6 @@
 from datetime import datetime, timezone
+
+from sqlalchemy import CheckConstraint
 from app.configs.connector import db
 
 class Product(db.Model):
@@ -7,17 +9,24 @@ class Product(db.Model):
     id                          = db.Column(db.Integer, primary_key=True)
     seller_id                   = db.Column(db.Integer, db.ForeignKey('seller_profile.id'), nullable=False)
     product_name                = db.Column(db.String, nullable=False)
-    price                       = db.Column(db.Numeric, nullable=False)
+    price                       = db.Column(db.Numeric(16, 2), nullable=False)
+    discount                    = db.Column(db.Numeric(5, 2), nullable=True)   
     product_desc                = db.Column(db.String, nullable=True)
     stock                       = db.Column(db.Integer, nullable=False)
     min_stock                   = db.Column(db.Integer, nullable=False)
     category_id                 = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
     eco_point                   = db.Column(db.Integer, nullable=True)
     recycle_material_percentage = db.Column(db.Integer, nullable=True)
+    image_url                   = db.Column(db.String, nullable=True)
     
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc))
     is_deleted = db.Column(db.Boolean, default=False)
+    
+    # Constraints
+    __table_args__ = (
+        CheckConstraint('discount >= 0 AND discount <= 100', name='check_discount_range'),
+    )
 
     # Relationship
     seller = db.relationship('Seller', backref=db.backref('products', lazy=True))
