@@ -48,3 +48,13 @@ class AddProduct(BaseModel):
     eco_point: int
     recycle_material_percentage: int
     image_url: str
+
+class user_interest(BaseModel):
+    user_id: int
+    category_id: int   
+    
+class changePassword(BaseModel):
+    email: str
+    otp_code: str  
+    password : str
+    
