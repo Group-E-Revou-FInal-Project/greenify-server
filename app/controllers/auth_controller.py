@@ -1,5 +1,6 @@
 import datetime
 import json
+from pydantic import ValidationError
 import pyotp  # For 2FA
 from flask import jsonify, request
 from app.configs.connector import db
@@ -19,6 +20,7 @@ from email_validator import validate_email, EmailNotValidError
 
 from app.utils.functions.generate_otp import generate_random_otp
 from app.utils.functions.send_emails import send_email
+from app.utils.validators import changePassword
 
 class AuthController:
     # def success(data=None, message="Operation successful.", code=200):
@@ -101,7 +103,7 @@ class AuthController:
             if user is None:
                 return Response.error("User not found", 404)
 
-            user.two_factor_verified = False
+            user.two_factor_secret = None
             db.session.commit()
 
             return Response.success(
@@ -226,7 +228,13 @@ class AuthController:
         if 'password' not in data or not data['password']:
             return Response.error("Password is required", 400)
 
-        reset_response = UserService.reset_password(data)
+
+        try:
+            validate_changePassword = changePassword.model_validate(data)
+        except ValidationError as e:
+            return Response.error(f"{str(e)}", 400)
+        
+        reset_response = UserService.reset_password(validate_changePassword.model_dump())
 
         if "error" in reset_response:
             return Response.error(reset_response["error"], 400)

@@ -12,8 +12,9 @@ def token_required(fn):
         verify_jwt_in_request()
         user_id = json.loads(get_jwt_identity())['user_id']
         user = user_validation(user_id)
-        if user['error'] is not None:
+        if isinstance(user, dict) and 'error' in user:
             return jsonify({'error': {'code': 401, 'message': user['error']}}), 401
+        
         return fn(*args, **kwargs)
     return wrapper
 

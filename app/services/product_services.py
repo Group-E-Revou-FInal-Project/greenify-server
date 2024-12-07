@@ -1,9 +1,12 @@
 from datetime import datetime, timezone
+from math import ceil
+import random
 from flask import Response, jsonify
 from sqlalchemy.exc import IntegrityError
 from app.configs.connector import db
 from app.models.products import Product
 from app.models.categories import Category
+from app.models.users import User
 
 
 class ProductService:
@@ -58,5 +61,51 @@ class ProductService:
     def get_filter_product(filter, value):
         products = Product.query.filter_by(**{filter: value}).all()
         return [product.to_dict() for product in products]
+    
+    @staticmethod
+    def get_recommendations(user_id, page, per_page):
+    # Get the user
+        user = User.query.get(user_id)
+        if not user:
+            return {"message": "User not found"}, 404
+
+        # Get user's interests (categories they are interested in)
+        interest_ids = [category.id for category in user.interests]
+
+        # Start building the query for recommendations
+        recommendations_query = Product.query
+
+        
+        if interest_ids:
+            recommendations_query = recommendations_query.filter(Product.category_id.in_(interest_ids))
+        
+        # Paginate the recommendations
+        recommendations_paginated = recommendations_query.paginate(page=page, per_page=per_page, error_out=False)
+
+        new_arrivals = Product.query.order_by(Product.id.desc()).limit(20).all()
+        random_products = Product.query.order_by(db.func.random()).limit(20).all()
+        recommendations_paginated.items += new_arrivals + random_products
+            
+
+        # Ensure uniqueness by converting to a set of product IDs
+        unique_recommendations = {product.id: product for product in recommendations_paginated.items}.values()
+
+        # Total number of items and pages
+        total_items = len(unique_recommendations)
+        total_pages = ceil(total_items / per_page)
+
+        # Pagination logic
+        start_index = (page - 1) * per_page
+        end_index = start_index + per_page
+        paginated_recommendations = list(unique_recommendations)[start_index:end_index]
+
+        # Return the paginated recommendations
+        return {
+            "page": page,
+            "per_page": per_page,
+            "total_items": total_items,
+            "total_pages": total_pages,
+            "data": [{"id": p.id, "name": p.product_name, "category": p.category.category_name} for p in paginated_recommendations]
+        }
     
     
