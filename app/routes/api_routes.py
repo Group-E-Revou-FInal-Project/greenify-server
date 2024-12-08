@@ -5,6 +5,7 @@ from app.controllers.profile_controller import ProfileController
 from app.controllers.product_controller import ProductController
 from app.controllers.seller_controller import SellerController
 from app.controllers.UserInterestController import UserInterestController
+from app.controllers.wishlist_controller import WishlistController
 from app.middlewares.auth_middleware import admin_required,seller_required, token_required, two_fa_required 
 
 
@@ -13,6 +14,7 @@ profile_bp = Blueprint('profile', __name__)
 auth_bp = Blueprint('auth', __name__) 
 product_bp = Blueprint('product', __name__)
 seller_bp = Blueprint('seller', __name__)
+wishlist_bp = Blueprint('wishlist', __name__)
 
 
 # User Routes
@@ -49,6 +51,13 @@ auth_bp.add_url_rule('/verify-2fa', view_func=token_required(AuthController.veri
 auth_bp.add_url_rule('/refresh', view_func=AuthController.refresh_token, methods=['POST'])  # Refresh JWT token
 auth_bp.add_url_rule('/forgot-password', view_func=AuthController.forgot_password, methods=['POST'])
 auth_bp.add_url_rule('/forgot-change-password', view_func=AuthController.forgot_change_password, methods=['POST'])
+
+
+# wishlist Routes
+wishlist_bp.add_url_rule('/add-to-wishlist', view_func=token_required(WishlistController.add_to_wishlist), methods=['POST'])
+wishlist_bp.add_url_rule('/get-wishlist', view_func=token_required(WishlistController.get_user_wishlist), methods=['GET'])
+wishlist_bp.add_url_rule('/remove-from-wishlist', view_func=token_required(WishlistController.remove_from_wishlist), methods=['DELETE'])    
+wishlist_bp.add_url_rule('/clear-wishlist', view_func=token_required(WishlistController.clear_wishlist), methods=['DELETE'])
 
 
 
