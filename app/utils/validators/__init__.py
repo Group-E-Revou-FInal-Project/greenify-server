@@ -58,3 +58,7 @@ class changePassword(BaseModel):
     otp_code: str  
     password : str
     
+class addAddWishlist(BaseModel):
+    user_id       : int
+    product_id    : int  
+    
