@@ -30,6 +30,18 @@ class UserInterestController:
         return {"interests": interests}, 200
     
     @staticmethod
+    def update_interests():
+        data = request.get_json()
+        user_id = json.loads(get_jwt_identity())['user_id']
+        
+        response = UserInterestService.update_interests(user_id, data)
+        
+        if 'error' in response:
+            return Response.error(message=response['error'], code=400)
+        
+        return Response.success(data=response, message='Success update profile data', code=200)
+    
+    @staticmethod
     def remove_interest():
         data = request.get_json()
         user_id = json.loads(get_jwt_identity())['user_id']

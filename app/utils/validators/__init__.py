@@ -37,10 +37,10 @@ class CreateSeller(BaseModel):
 class AddCategory(BaseModel):
     category_name: str
     
-class AddProduct(BaseModel):
+class Product(BaseModel):
     product_name: str
     price: Decimal
-    discount: Decimal
+    discount: Optional[Decimal] = None
     product_desc: str
     stock: int
     min_stock: int
@@ -48,9 +48,6 @@ class AddProduct(BaseModel):
     eco_point: int
     recycle_material_percentage: int
     image_url: str
-    
-class UpdateProduct(BaseModel):
-    product_name: Optional[str] = None
 
 class user_interest(BaseModel):
     user_id: int

@@ -3,6 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from app.configs.connector import db
 from app.models.categories import Category
 from app.models.users import User
+from app.utils.functions.unique_list import list_unique
 
 class UserInterestService:
     # CREATE
@@ -35,6 +36,29 @@ class UserInterestService:
             return None
         except Exception as error:
             return {"error": f"Failed to fetch user interest: {str(error)}"}
+        
+    @staticmethod
+    def update_interests(user_id, data):
+        user = User.query.filter_by(id=user_id).first()
+        
+        if user is None:
+            return {'error': 'User not found'}
+        
+        if not list_unique(data['interests']):
+            return {'error': 'interest must be unique'}
+            
+        
+        if not isinstance(data.get('interests'), list) or len(data['interests']) != 3:
+            return {'error' : 'You must provide exactly 3 interests'}
+        
+        for i, interest_name in enumerate(data['interests']):
+            interest = Category.query.filter_by(category_name=interest_name).first()
+            user.interests[i] = interest
+        
+        db.session.add(user)    
+        db.session.commit()
+        
+        return user.to_dict()
 
     @staticmethod
     def remove_user_interest(data):

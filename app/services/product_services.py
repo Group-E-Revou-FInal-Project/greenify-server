@@ -41,7 +41,8 @@ class ProductService:
         
         new_product = Product(seller_id=seller_id, 
                               product_name=data['product_name'], 
-                              price=data['price'], 
+                              price=data['price'],
+                              discount=data['discount'], 
                               product_desc=data['product_desc'], 
                               stock=data['stock'], 
                               min_stock=data['min_stock'], 
@@ -64,10 +65,10 @@ class ProductService:
         user_check = User.query.filter_by(id=user_id).first()
         
         if product is None:
-            return "product not found"
+            return { "error" : "product not found" }
         
         if product.seller_id != user_check.seller_profile.id:
-            return "seller id does not match"
+            return { "error" : "seller id does not match" }
         
         product.product_name = data.get('product_name', product.product_name)
         product.price = data.get('price', product.price)
@@ -98,6 +99,31 @@ class ProductService:
     @staticmethod
     def get_product_by_id(id):
         product = Product.query.filter_by(id=id).first()
+        if product is None:
+            return None
+        return product.to_dict()
+    
+    @staticmethod
+    def delete_product(id):
+        product = Product.query.filter_by(id=id).first()
+        if product is None:
+            return None        
+
+        product.soft_delete()
+        db.session.add(product)        
+        db.session.commit()        
+        return product.to_dict()
+    
+    @staticmethod
+    def restore_product(id):
+        product = Product.query.filter_by(id=id).first()
+        
+        if product is None:
+            return None        
+
+        product.restore()
+        db.session.add(product)        
+        db.session.commit()        
         return product.to_dict()
     
     @staticmethod

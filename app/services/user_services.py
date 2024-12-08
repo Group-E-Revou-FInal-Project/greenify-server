@@ -7,6 +7,7 @@ from app.models.users import User
 from werkzeug.security import check_password_hash
 from app.models.users import User, Role
 from app.models.categories import Category
+from app.utils.functions.unique_list import list_unique
 
 class UserService:
     @staticmethod
@@ -74,7 +75,7 @@ class UserService:
 
         if role is None:
             return 'Role not found'
-        print(data['interests'])
+        
         if not isinstance(data.get('interests'), list) or len(data['interests']) != 3:
             return 'You must provide exactly 3 interests'
         

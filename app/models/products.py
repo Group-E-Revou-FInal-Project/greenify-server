@@ -27,10 +27,16 @@ class Product(db.Model):
     __table_args__ = (
         CheckConstraint('discount >= 0 AND discount <= 100', name='check_discount_range'),
     )
+    
+    def soft_delete(self):
+        self.is_deleted = True
+        
+    def restore(self):
+        self.is_deleted = False
 
     # Relationship
     seller_profile = db.relationship('Seller', uselist=False, backref=db.backref('products', lazy=True))
-    category = db.relationship('Category', uselist=False, backref=db.backref('product', uselist=False, lazy=True))
+    category = db.relationship('Category', uselist=False, backref=db.backref('product', uselist=False,lazy=True))
 
     def to_dict(self):
         return {
