@@ -98,7 +98,7 @@ class VoucherService:
                     recipient_name = user.name if user.name else "Pengguna"
                     email_body = f"""
                     <p>Hai, {recipient_name}!</p>
-                    <p>Sebuah voucher baru tersedia untuk produk yang Anda simpan di daftar keinginan:</p>
+                    <p>Sebuah voucher baru tersedia untuk produk yang kamu simpan di wishlistmu!</p>
                     <ul>
                         <li><strong>Nama Voucher:</strong> {voucher.nama_voucher}</li>
                         <li><strong>Kode:</strong> {voucher.kode_voucher}</li>
