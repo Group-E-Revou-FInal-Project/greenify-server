@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
-from pydantic import BaseModel, EmailStr, condecimal
+from pydantic import BaseModel, EmailStr, Field, condecimal
 from app.models.users import Gender
 
 class OTPCode(BaseModel):
@@ -61,4 +61,23 @@ class changePassword(BaseModel):
 class AddWishlist(BaseModel):
     user_id       : int
     product_id    : int  
+    
+class AddVoucher(BaseModel):
+    user_id: int
+    product_id: int
+    kode_voucher: str = Field(..., max_length=50)
+    expired: datetime
+    voucher_desc: Optional[str] = None
+    nama_voucher: str = Field(..., max_length=100)
+    discount_percentage: float = Field(..., ge=0, le=100) 
+    is_active: Optional[bool] = True
+    
+class UpdateVoucher(BaseModel):
+    product_id: Optional[int]
+    kode_voucher: Optional[str] = Field(None, max_length=50)
+    expired: Optional[datetime]
+    voucher_desc: Optional[str]
+    nama_voucher: Optional[str] = Field(None, max_length=100)
+    discount_percentage: Optional[float] = Field(None, ge=0, le=100)
+    is_active: Optional[bool] = True
     
