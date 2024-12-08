@@ -10,9 +10,6 @@ class Category(db.Model):
     updated_at    = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc))
     is_deleted    = db.Column(db.Boolean, default=False)
     
-    #Realationship
-    products_list  = db.relationship('Product', backref='categories', lazy=True)
-    
     def to_dict(self):
         return {
             'id': self.id,

@@ -29,6 +29,7 @@ class ProductController:
     @staticmethod
     def add_product():
         data = request.get_json()
+        user_id = json.loads(get_jwt_identity())['user_id']
         
         try:
             validate_product = AddProduct.model_validate(data)
@@ -36,7 +37,7 @@ class ProductController:
             missing_fields = handle_field_error(e)
             return Response.error(message=missing_fields, code=400)
         
-        response = ProductService.add_product(validate_product.model_dump())
+        response = ProductService.add_product(user_id, validate_product.model_dump())
         
         if response is None:
             return Response.error(message='Oops, something went wrong', code=400)

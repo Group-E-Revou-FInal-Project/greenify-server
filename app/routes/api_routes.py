@@ -33,12 +33,10 @@ profile_bp.add_url_rule('/interests', view_func=token_required(UserInterestContr
 
 # Product Routes
 product_bp.add_url_rule('/category', view_func=ProductController.add_category, methods=['POST'])
-product_bp.add_url_rule('/product', view_func=token_required(seller_required(ProductController.add_product)), methods=['POST'])
-product_bp.add_url_rule('/product/<int:id>', view_func=token_required(seller_required(ProductController.update_product)), methods=['PUT'])
-product_bp.add_url_rule('/product', view_func=ProductController.add_product, methods=['POST'])
+product_bp.add_url_rule('/add-product', view_func=token_required(seller_required(ProductController.add_product)), methods=['POST'])
+product_bp.add_url_rule('/<int:id>', view_func=token_required(seller_required(ProductController.update_product)), methods=['PUT'])
+# product_bp.add_url_rule('/product', view_func=ProductController.add_product, methods=['POST'])
 product_bp.add_url_rule('/recommendation', view_func=token_required(ProductController.recommendation_product), methods=['GET'])
-
-
 
 # Seller Routes
 seller_bp.add_url_rule('/create-seller', view_func=token_required(SellerController.create_seller), methods=['POST'])

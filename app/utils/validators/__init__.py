@@ -38,9 +38,9 @@ class AddCategory(BaseModel):
     category_name: str
     
 class AddProduct(BaseModel):
-    seller_id: int
     product_name: str
     price: Decimal
+    discount: Decimal
     product_desc: str
     stock: int
     min_stock: int

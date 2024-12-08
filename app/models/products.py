@@ -29,8 +29,8 @@ class Product(db.Model):
     )
 
     # Relationship
-    seller = db.relationship('Seller', backref=db.backref('products', lazy=True))
-    category = db.relationship('Category', backref=db.backref('products', lazy=True))
+    seller_profile = db.relationship('Seller', uselist=False, backref=db.backref('products', lazy=True))
+    category = db.relationship('Category', uselist=False, backref=db.backref('product', uselist=False, lazy=True))
 
     def to_dict(self):
         return {

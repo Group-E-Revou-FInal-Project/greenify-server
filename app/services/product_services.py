@@ -23,8 +23,20 @@ class ProductService:
             return None
         
     @staticmethod
-    def add_product(data):
-        new_product = Product(seller_id=data['seller_id'], 
+    def add_product(user_id, data):
+        user = User.query.filter_by(id=user_id).first()
+        
+        if user is None:
+            return None
+        
+        print(user.seller_profile)
+        
+        seller_id = user.seller_profile.id
+        
+        if seller_id is None:
+            return None
+        
+        new_product = Product(seller_id=seller_id, 
                               product_name=data['product_name'], 
                               price=data['price'], 
                               product_desc=data['product_desc'], 
@@ -38,7 +50,8 @@ class ProductService:
             db.session.add(new_product)
             db.session.commit()
             return new_product.to_dict()
-        except IntegrityError:
+        except IntegrityError as e:
+            print(e)
             db.session.rollback()
             return None
         
