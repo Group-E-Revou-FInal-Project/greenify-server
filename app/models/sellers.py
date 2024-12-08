@@ -15,9 +15,8 @@ class Seller(db.Model):
     updated_at        = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc))
 
     # Relationship
-    user = db.relationship('User', backref=db.backref('seller_profile', lazy=True))
-    products_list = db.relationship('Product', backref=db.backref('seller_profile', lazy=True))
-
+    user_profile = db.relationship('User', backref=db.backref('seller_profile', uselist=False, lazy=True))
+    
     def to_dict(self):
         return {
             'id': self.id,

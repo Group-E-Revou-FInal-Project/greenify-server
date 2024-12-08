@@ -26,10 +26,23 @@ class ProductService:
             return None
         
     @staticmethod
-    def add_product(data):
-        new_product = Product(seller_id=data['seller_id'], 
+    def add_product(user_id, data):
+        user = User.query.filter_by(id=user_id).first()
+        
+        if user is None:
+            return None
+        
+        print(user.seller_profile)
+        
+        seller_id = user.seller_profile.id
+        
+        if seller_id is None:
+            return None
+        
+        new_product = Product(seller_id=seller_id, 
                               product_name=data['product_name'], 
-                              price=data['price'], 
+                              price=data['price'],
+                              discount=data['discount'], 
                               product_desc=data['product_desc'], 
                               stock=data['stock'], 
                               min_stock=data['min_stock'], 
@@ -41,9 +54,37 @@ class ProductService:
             db.session.add(new_product)
             db.session.commit()
             return new_product.to_dict()
-        except IntegrityError:
+        except IntegrityError as e:
+            print(e)
             db.session.rollback()
             return None
+        
+    @staticmethod
+    def update_product(user_id, product_id, data):
+        product = Product.query.filter_by(id=product_id).first()
+        user_check = User.query.filter_by(id=user_id).first()
+        
+        if product is None:
+            return { "error" : "product not found" }
+        
+        if product.seller_id != user_check.seller_profile.id:
+            return { "error" : "seller id does not match" }
+        
+        product.product_name = data.get('product_name', product.product_name)
+        product.price = data.get('price', product.price)
+        product.discount = data.get('discount', product.discount)
+        product.product_desc = data.get('product_desc', product.product_desc)
+        product.stock = data.get('stock', product.stock)
+        product.min_stock = data.get('min_stock', product.min_stock)
+        product.category_id = data.get('category_id', product.category_id)
+        product.eco_point = data.get('eco_point', product.eco_point)
+        product.recycle_material_percentage = data.get('recycle_material_percentage', product.recycle_material_percentage)
+        product.image_url = data.get('image_url', product.image_url)
+        
+        db.session.add(product)
+        db.session.commit()
+        
+        return product.to_dict()
         
     @staticmethod
     def get_all_categories():
@@ -58,6 +99,31 @@ class ProductService:
     @staticmethod
     def get_product_by_id(id):
         product = Product.query.filter_by(id=id).first()
+        if product is None:
+            return None
+        return product.to_dict()
+    
+    @staticmethod
+    def delete_product(id):
+        product = Product.query.filter_by(id=id).first()
+        if product is None:
+            return None        
+
+        product.soft_delete()
+        db.session.add(product)        
+        db.session.commit()        
+        return product.to_dict()
+    
+    @staticmethod
+    def restore_product(id):
+        product = Product.query.filter_by(id=id).first()
+        
+        if product is None:
+            return None        
+
+        product.restore()
+        db.session.add(product)        
+        db.session.commit()        
         return product.to_dict()
     
     @staticmethod

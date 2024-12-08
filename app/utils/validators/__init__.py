@@ -37,10 +37,10 @@ class CreateSeller(BaseModel):
 class AddCategory(BaseModel):
     category_name: str
     
-class AddProduct(BaseModel):
-    seller_id: int
+class Product(BaseModel):
     product_name: str
     price: Decimal
+    discount: Optional[Decimal] = None
     product_desc: str
     stock: int
     min_stock: int

@@ -7,8 +7,8 @@ class Wishlist(db.Model):
     __tablename__ = "wishlist"
 
     id = db.Column(db.BigInteger, primary_key=True)
-    product_id = db.Column(db.BigInteger, db.ForeignKey('product.id'), nullable=False)
-    user_id = db.Column(db.BigInteger, db.ForeignKey('user.id'), nullable=False)
+    product_id = db.Column(db.BigInteger, db.ForeignKey('products.id'), nullable=False)
+    user_id = db.Column(db.BigInteger, db.ForeignKey('users.id'), nullable=False)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc))

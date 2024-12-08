@@ -5,8 +5,8 @@ class Voucher(db.Model):
     __tablename__ = 'voucher'
 
     id = db.Column(db.BigInteger, primary_key=True)
-    seller_id = db.Column(db.BigInteger, db.ForeignKey('seller.id'), nullable=False)
-    product_id = db.Column(db.BigInteger, db.ForeignKey('product.id'), nullable=False)
+    seller_id = db.Column(db.BigInteger, db.ForeignKey('seller_profile.id'), nullable=False)
+    product_id = db.Column(db.BigInteger, db.ForeignKey('products.id'), nullable=False)
     kode_voucher = db.Column(db.String(50), unique=True, nullable=False)
     expired = db.Column(db.DateTime, nullable=False)
     voucher_desc = db.Column(db.String(255), nullable=True)
