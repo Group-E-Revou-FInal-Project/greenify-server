@@ -2,10 +2,12 @@ from datetime import datetime, timezone
 from math import ceil
 import random
 from flask import Response, jsonify
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from app.configs.connector import db
 from app.models.products import Product
 from app.models.categories import Category
+from app.models.sellers import Seller
 from app.models.users import User
 
 
@@ -69,43 +71,62 @@ class ProductService:
         if not user:
             return {"message": "User not found"}, 404
 
-        # Get user's interests (categories they are interested in)
+        # Get the user's seller profile (if they are a seller)
+        seller = Seller.query.filter_by(user_id=user_id).first()
+        seller_id = seller.id if seller else None
+
+     
         interest_ids = [category.id for category in user.interests]
 
-        # Start building the query for recommendations
+     
         recommendations_query = Product.query
 
-        
+        # Filter products by user's interest categories
         if interest_ids:
             recommendations_query = recommendations_query.filter(Product.category_id.in_(interest_ids))
+
         
-        # Paginate the recommendations
+        if seller_id:
+            recommendations_query = recommendations_query.filter(Product.seller_id != seller_id)
+
+    
+        new_arrivals = Product.query.filter(Product.seller_id != seller_id).order_by(Product.id.desc()).limit(20).all()
+        random_products = Product.query.filter(Product.seller_id != seller_id).order_by(func.random()).limit(20).all()
+
+        # Paginate the query
         recommendations_paginated = recommendations_query.paginate(page=page, per_page=per_page, error_out=False)
 
-        new_arrivals = Product.query.order_by(Product.id.desc()).limit(20).all()
-        random_products = Product.query.order_by(db.func.random()).limit(20).all()
-        recommendations_paginated.items += new_arrivals + random_products
-            
+        combined_recommendations = recommendations_paginated.items + new_arrivals + random_products
+        unique_recommendations = {product.id: product for product in combined_recommendations}.values()
 
-        # Ensure uniqueness by converting to a set of product IDs
-        unique_recommendations = {product.id: product for product in recommendations_paginated.items}.values()
-
-        # Total number of items and pages
+      
         total_items = len(unique_recommendations)
         total_pages = ceil(total_items / per_page)
 
-        # Pagination logic
+        # Paginate the unique recommendations manually
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_recommendations = list(unique_recommendations)[start_index:end_index]
 
-        # Return the paginated recommendations
+        # Return paginated response
         return {
             "page": page,
             "per_page": per_page,
             "total_items": total_items,
             "total_pages": total_pages,
-            "data": [{"id": p.id, "name": p.product_name, "category": p.category.category_name} for p in paginated_recommendations]
+            "data": [
+                {
+                    "id": p.id,
+                    "name": p.product_name,
+                    "price": float(p.price),
+                    "discount": float(p.discount) if p.discount else None,
+                    "category": p.category.category_name,
+                    "image_url": p.image_url,
+                    "eco_point": p.eco_point,
+                    "recycle_material_percentage": p.recycle_material_percentage,
+                }
+                for p in paginated_recommendations
+            ]
         }
     
     
