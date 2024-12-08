@@ -53,7 +53,7 @@ auth_bp.add_url_rule('/forgot-change-password', view_func=AuthController.forgot_
 
 # wishlist Routes
 wishlist_bp.add_url_rule('/add-to-wishlist', view_func=token_required(WishlistController.add_to_wishlist), methods=['POST'])
-wishlist_bp.add_url_rule('/get-wishlist', view_func=token_required(WishlistController.get_wishlist), methods=['GET'])
+wishlist_bp.add_url_rule('/get-wishlist', view_func=token_required(WishlistController.get_user_wishlist), methods=['GET'])
 wishlist_bp.add_url_rule('/remove-from-wishlist', view_func=token_required(WishlistController.remove_from_wishlist), methods=['DELETE'])    
 wishlist_bp.add_url_rule('/clear-wishlist', view_func=token_required(WishlistController.clear_wishlist), methods=['DELETE'])
 
