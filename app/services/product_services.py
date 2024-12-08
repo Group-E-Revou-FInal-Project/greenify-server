@@ -9,6 +9,7 @@ from app.models.products import Product
 from app.models.categories import Category
 from app.models.sellers import Seller
 from app.models.users import User
+from app.models.wishlist import Wishlist
 
 
 class ProductService:
@@ -66,44 +67,42 @@ class ProductService:
     
     @staticmethod
     def get_recommendations(user_id, page, per_page):
-    # Get the user
+        # Get the user
         user = User.query.get(user_id)
         if not user:
             return {"message": "User not found"}, 404
 
-        # Get the user's seller profile (if they are a seller)
         seller = Seller.query.filter_by(user_id=user_id).first()
         seller_id = seller.id if seller else None
 
-     
         interest_ids = [category.id for category in user.interests]
 
-     
+        wishlisted_products = db.session.query(Wishlist.product_id).filter_by(user_id=user_id).subquery()
+
         recommendations_query = Product.query
 
-        # Filter products by user's interest categories
         if interest_ids:
             recommendations_query = recommendations_query.filter(Product.category_id.in_(interest_ids))
 
-        
         if seller_id:
             recommendations_query = recommendations_query.filter(Product.seller_id != seller_id)
 
-    
+       
+        recommendations_query = recommendations_query.filter(Product.id.in_(wishlisted_products))
+
+     
         new_arrivals = Product.query.filter(Product.seller_id != seller_id).order_by(Product.id.desc()).limit(20).all()
         random_products = Product.query.filter(Product.seller_id != seller_id).order_by(func.random()).limit(20).all()
 
-        # Paginate the query
+        # Paginate the recommendations query
         recommendations_paginated = recommendations_query.paginate(page=page, per_page=per_page, error_out=False)
 
         combined_recommendations = recommendations_paginated.items + new_arrivals + random_products
         unique_recommendations = {product.id: product for product in combined_recommendations}.values()
 
-      
+        # Calculate pagination details
         total_items = len(unique_recommendations)
         total_pages = ceil(total_items / per_page)
-
-        # Paginate the unique recommendations manually
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_recommendations = list(unique_recommendations)[start_index:end_index]
