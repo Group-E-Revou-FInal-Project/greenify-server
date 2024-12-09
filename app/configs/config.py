@@ -14,7 +14,7 @@ class Config:
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 587
     MAIL_USE_TLS = True
-    MAIL_USERNAME = 'clarisapp21@gmail.com'
-    MAIL_PASSWORD = 'acdp ofua bjco xdrh'  
-    MAIL_DEFAULT_SENDER = 'clarisapp21@gmail.com' #('Greenify', 'greenifyme13@gmail.com')
+    MAIL_USERNAME = 'greenifyme13@gmail.com'
+    MAIL_PASSWORD = 'goyg umde wjrp dqer'  
+    MAIL_DEFAULT_SENDER = 'greenifyme13@gmail.com' #('Greenify', 'greenifyme13@gmail.com')
     

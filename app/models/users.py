@@ -9,6 +9,12 @@ user_roles = db.Table('user_roles',
     db.Column('role_id', db.Integer, db.ForeignKey('roles.id'), primary_key=True)
 )
 
+user_interests = db.Table('user_interests',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('category_id', db.Integer, db.ForeignKey('categories.id'), primary_key=True),
+    db.UniqueConstraint('user_id', 'category_id', name='uix_user_category')
+)
+
 class User(db.Model):
     __tablename__ = 'users'
     
@@ -29,9 +35,10 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc))
     
-    roles = db.relationship('Role', secondary=user_roles, backref=db.backref('users', lazy=True))
+    #Relationship
+    roles    = db.relationship('Role', secondary=user_roles, backref=db.backref('users', lazy=True))
+    interests = db.relationship('Category', secondary=user_interests, backref=db.backref('users', lazy=True))
 
-    
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -50,6 +57,7 @@ class User(db.Model):
             'created_at' : self.created_at.isoformat(),
             'updated_at' : self.updated_at.isoformat() if self.updated_at else None,
             'roles': [role.to_dict() for role in self.roles],
+            'interests': [interest.to_dict() for interest in self.interests]
         }
         
     
@@ -64,6 +72,3 @@ class Role(db.Model):
             'id': self.id,
             'rolename': self.rolename
         }
-        
-        
-    
