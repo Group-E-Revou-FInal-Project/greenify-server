@@ -77,6 +77,7 @@ voucher_bp.add_url_rule('/add-voucher', view_func=token_required(VoucherControll
 voucher_bp.add_url_rule('/get-voucher', view_func=token_required(VoucherController.get_voucher), methods=['GET'])       
 voucher_bp.add_url_rule('/update-voucher', view_func=token_required(VoucherController.update_voucher), methods=['PUT'])
 voucher_bp.add_url_rule('/delete-voucher', view_func=token_required(VoucherController.delete_voucher), methods=['DELETE'])
+voucher_bp.add_url_rule('/get-user-voucher', view_func=token_required(VoucherController.get_user_voucher_list), methods=['GET'])
 
 # Review Routes
 review_bp.add_url_rule('/add-review', view_func=token_required(ReviewController.add_review), methods=['POST'])
