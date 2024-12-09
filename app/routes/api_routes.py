@@ -7,6 +7,7 @@ from app.controllers.cart_controller import CartController
 from app.controllers.seller_controller import SellerController
 from app.controllers.UserInterestController import UserInterestController
 from app.controllers.wishlist_controller import WishlistController
+from app.controllers.voucher_controller import VoucherController
 from app.middlewares.auth_middleware import admin_required,seller_required, token_required, two_fa_required 
 
 
@@ -17,6 +18,7 @@ product_bp = Blueprint('product', __name__)
 seller_bp = Blueprint('seller', __name__)
 cart_bp = Blueprint('cart', __name__)
 wishlist_bp = Blueprint('wishlist', __name__)
+voucher_bp  = Blueprint('voucher', __name__)
 
 # User Routes
 user_bp.add_url_rule('/email-validation', view_func=UserController.email_validaton, methods=['POST'])
@@ -67,6 +69,13 @@ wishlist_bp.add_url_rule('/add-to-wishlist', view_func=token_required(WishlistCo
 wishlist_bp.add_url_rule('/get-wishlist', view_func=token_required(WishlistController.get_user_wishlist), methods=['GET'])
 wishlist_bp.add_url_rule('/remove-from-wishlist', view_func=token_required(WishlistController.remove_from_wishlist), methods=['DELETE'])    
 wishlist_bp.add_url_rule('/clear-wishlist', view_func=token_required(WishlistController.clear_wishlist), methods=['DELETE'])
+
+# Voucher Routes
+voucher_bp.add_url_rule('/add-voucher', view_func=token_required(VoucherController.add_voucher), methods=['POST'])
+voucher_bp.add_url_rule('/get-voucher', view_func=token_required(VoucherController.get_voucher), methods=['GET'])       
+voucher_bp.add_url_rule('/update-voucher', view_func=token_required(VoucherController.update_voucher), methods=['PUT'])
+voucher_bp.add_url_rule('/delete-voucher', view_func=token_required(VoucherController.delete_voucher), methods=['DELETE'])
+
 
 
 

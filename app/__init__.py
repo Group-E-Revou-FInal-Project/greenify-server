@@ -25,7 +25,7 @@ def create_app():
     mail.init_app(app)
 
     # Register Blueprints
-    from app.routes.api_routes import user_bp, profile_bp, auth_bp, product_bp, seller_bp, cart_bp, wishlist_bp
+    from app.routes.api_routes import user_bp, profile_bp, auth_bp, product_bp, seller_bp, cart_bp, wishlist_bp,voucher_bp
 
     app.register_blueprint(user_bp, url_prefix='/api/v1/users')
     app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
@@ -34,6 +34,7 @@ def create_app():
     app.register_blueprint(seller_bp, url_prefix='/api/v1/sellers')
     app.register_blueprint(cart_bp, url_prefix='/api/v1/carts')
     app.register_blueprint(wishlist_bp, url_prefix='/api/v1/wishlist')
+    app.register_blueprint(voucher_bp, url_prefix='/api/v1/vouchers')
     
     # Define basic routes for DB creation and seeding
     @app.route('/')
