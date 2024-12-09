@@ -1,3 +1,4 @@
+from datetime import datetime
 from app.models import voucher
 from app.models.sellers import Seller
 from app.models.users import User
@@ -123,4 +124,38 @@ class VoucherService:
         except Exception as error:
             print(f"Error notifying wishlist users: {str(error)}")
             return {"error": f"Notification process failed: {str(error)}"}
-
+        
+        
+    @staticmethod
+    def get_user_voucher_list(user_id):
+        try:   
+            user_wishlist = (
+                db.session.query(Wishlist.product_id)
+                .filter(Wishlist.user_id == user_id)
+                .subquery()
+            )
+            
+            active_vouchers = (
+                db.session.query(Voucher)
+                .filter(Voucher.product_id.in_(user_wishlist)) 
+                .filter(Voucher.is_active == True)  
+                .filter(Voucher.expired > datetime.utcnow()) 
+                .all()
+            )
+            #make the response data for user voucher list
+            voucher_list = [
+                {
+                    "id": v.id,
+                    "product_id": v.product_id,
+                    "kode_voucher": v.kode_voucher,
+                    "nama_voucher": v.nama_voucher,
+                    "discount_percentage": v.discount_percentage,
+                    "expired": v.expired.isoformat(),
+                    "is_active": v.is_active,
+                }
+                for v in active_vouchers
+            ]
+            return voucher_list
+        except Exception as error:
+            return {"error": f"Failed to get voucher: {str(error)}"}
+            

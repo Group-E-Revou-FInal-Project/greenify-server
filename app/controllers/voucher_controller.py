@@ -1,4 +1,5 @@
-from flask import request
+from flask import json, request
+from flask_jwt_extended import get_jwt_identity
 from pydantic import ValidationError
 from app.services.voucher_service import VoucherService
 from app.constants.response_status import Response
@@ -62,3 +63,10 @@ class VoucherController:
             return Response.error(message=response["error"], code=400)
 
         return Response.success(data=None, message="Voucher deleted successfully", code=200)
+    
+    @staticmethod
+    def get_user_voucher_list():
+        user_id = json.loads(get_jwt_identity())['user_id']
+        voucher_list = VoucherService.get_user_voucher_list(user_id)
+        return Response.success(data=voucher_list, message="Fetched voucher list successfully", code=200)
+        
