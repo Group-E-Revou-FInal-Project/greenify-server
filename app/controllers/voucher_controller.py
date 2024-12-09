@@ -69,4 +69,18 @@ class VoucherController:
         user_id = json.loads(get_jwt_identity())['user_id']
         voucher_list = VoucherService.get_user_voucher_list(user_id)
         return Response.success(data=voucher_list, message="Fetched voucher list successfully", code=200)
+    
+    @staticmethod
+    def deactivate_voucher(voucher_id):
+        response = VoucherService.deactivate_voucher(voucher_id)
+        if "error" in response:
+            return Response.error(message=response["error"], code=404)
+        return Response.success(data=None, message=response["message"], code=200)
+
+    @staticmethod
+    def reactivate_voucher(voucher_id):
+        response = VoucherService.reactivate_voucher(voucher_id)
+        if "error" in response:
+            return Response.error(message=response["error"], code=404)
+        return Response.success(data=None, message=response["message"], code=200)
         
