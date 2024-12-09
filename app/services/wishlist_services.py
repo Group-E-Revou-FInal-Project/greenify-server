@@ -7,22 +7,31 @@ class WishlistService:
     @staticmethod
     def add_to_wishlist(user_id, data):
         product_id = data['product_id']
-        existing_wishlist = Wishlist.query.filter_by(user_id=user_id, 
-                                                     product_id=product_id,
-                                                     is_active=True).first()
+        
+        # Check for existing wishlist
+        existing_wishlist = Wishlist.query.filter_by(user_id=user_id, product_id=product_id).first()
         
         if existing_wishlist:
+            # If wishlist exists but is soft-deleted, reactivate it
+            if not existing_wishlist.is_active:
+                existing_wishlist.is_active = True
+                try:
+                    db.session.commit()
+                    return existing_wishlist.to_dict()
+                except Exception as error:
+                    db.session.rollback()
+                    return {"error": f"Failed to update wishlist: {str(error)}"}
             return None  
         
         new_wishlist = Wishlist(user_id=user_id, product_id=product_id)
-        
         try:
             db.session.add(new_wishlist)
             db.session.commit()
             return new_wishlist.to_dict()
-        except Exception:
+        except Exception as error:
             db.session.rollback()
-            return None
+            return {"error": f"Failed to add to wishlist: {str(error)}"}
+
     
     @staticmethod
     def get_user_wishlist(user_id):
