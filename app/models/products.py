@@ -51,5 +51,6 @@ class Product(db.Model):
             'created_at': self.created_at,
             'updated_at': self.updated_at,
             'eco_point': self.eco_point,
-            'recycle_material': self.recycle_material_percentage
+            'recycle_material': self.recycle_material_percentage,
+            'reviews': [review.to_dict() for review in self.reviews if not review.is_deleted]
         }

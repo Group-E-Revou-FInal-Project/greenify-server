@@ -2,7 +2,7 @@ from flask import request
 from pydantic import ValidationError
 from app.services.voucher_service import VoucherService
 from app.constants.response_status import Response
-from app.utils.validators import UpdateVoucher, addVoucher
+from app.utils.validators import UpdateVoucher
 
 class VoucherController:
     @staticmethod
