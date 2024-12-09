@@ -2,7 +2,7 @@ from sqlalchemy.exc import IntegrityError
 from app.configs.connector import db
 from app.models.sellers import Seller
 
-class SellerService():
+class SellerService:
     @staticmethod
     def create_seller(data):
         new_seller = Seller(user_id=data['user_id'], 
