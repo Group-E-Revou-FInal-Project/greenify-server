@@ -86,3 +86,11 @@ class Cart(BaseModel):
     product_id: int
     quantity: Optional[int] = 1
     
+from pydantic import BaseModel, Field, validator
+
+class Review(BaseModel):
+    product_id: int
+    user_id: int
+    rating: Optional[float] = Field(None, ge=1.0, le=5.0)
+    review: Optional[str] = Field(None, max_length=2500)
+    
