@@ -159,42 +159,6 @@ class VoucherService:
         except Exception as error:
             return {"error": f"Failed to get voucher: {str(error)}"}
         
-        
-    @staticmethod
-    def deactivate_voucher(voucher_id):
-        try:
-            voucher = Voucher.query.filter_by(id=voucher_id).first()
-            if not voucher:
-                return {"error": "Voucher not found"}
-            
-            if not voucher.is_active:
-                return {"message": "Voucher is already deactivated"}
-            
-            voucher.is_active = False
-            db.session.commit()
-            return {"message": f"Voucher with ID {voucher_id} successfully deactivated"}
-        except Exception as error:
-            db.session.rollback()
-            return {"error": f"Failed to deactivate voucher: {str(error)}"}
-
-    @staticmethod
-    def reactivate_voucher(voucher_id):
-        try:
-            voucher = Voucher.query.filter_by(id=voucher_id).first()
-            if not voucher:
-                return {"error": "Voucher not found"}
-            
-            if voucher.is_active:
-                return {"message": "Voucher is already active"}
-            
-            voucher.is_active = True
-            db.session.commit()
-            return {"message": f"Voucher with ID {voucher_id} successfully reactivated"}
-        except Exception as error:
-            db.session.rollback()
-            return {"error": f"Failed to reactivate voucher: {str(error)}"}
-        
-        
     @staticmethod
     def deactivate_voucher(voucher_id):
         try:
