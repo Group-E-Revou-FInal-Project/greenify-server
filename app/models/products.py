@@ -10,7 +10,7 @@ class Product(db.Model):
     seller_id                   = db.Column(db.Integer, db.ForeignKey('seller_profile.id'), nullable=False)
     product_name                = db.Column(db.String, nullable=False)
     price                       = db.Column(db.Numeric(16, 2), nullable=False)
-    discount                    = db.Column(db.Numeric(5, 2), nullable=True)   
+    discount                    = db.Column(db.Float, nullable=True)   
     product_desc                = db.Column(db.String, nullable=True)
     stock                       = db.Column(db.Integer, nullable=False)
     min_stock                   = db.Column(db.Integer, nullable=False)
@@ -36,7 +36,7 @@ class Product(db.Model):
 
     # Relationship
     seller_profile = db.relationship('Seller', uselist=False, backref=db.backref('products', lazy=True))
-    category = db.relationship('Category', uselist=False, backref=db.backref('product', uselist=False,lazy=True))
+    category = db.relationship('Category', uselist=False, backref=db.backref('product', uselist=False, lazy=True))
 
     def to_dict(self):
         return {

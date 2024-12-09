@@ -81,3 +81,8 @@ class UpdateVoucher(BaseModel):
     discount_percentage: Optional[float] = Field(None, ge=0, le=100)
     is_active: Optional[bool] = True
     
+class Cart(BaseModel):
+    user_id: int
+    product_id: int
+    quantity: Optional[int] = 1
+    

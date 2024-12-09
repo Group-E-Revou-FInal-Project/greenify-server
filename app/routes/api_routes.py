@@ -3,6 +3,7 @@ from app.controllers.user_controller import UserController
 from app.controllers.auth_controller import AuthController
 from app.controllers.profile_controller import ProfileController
 from app.controllers.product_controller import ProductController
+from app.controllers.cart_controller import CartController
 from app.controllers.seller_controller import SellerController
 from app.controllers.UserInterestController import UserInterestController
 from app.controllers.wishlist_controller import WishlistController
@@ -14,8 +15,8 @@ profile_bp = Blueprint('profile', __name__)
 auth_bp = Blueprint('auth', __name__) 
 product_bp = Blueprint('product', __name__)
 seller_bp = Blueprint('seller', __name__)
+cart_bp = Blueprint('cart', __name__)
 wishlist_bp = Blueprint('wishlist', __name__)
-
 
 # User Routes
 user_bp.add_url_rule('/email-validation', view_func=UserController.email_validaton, methods=['POST'])
@@ -55,6 +56,11 @@ auth_bp.add_url_rule('/refresh', view_func=AuthController.refresh_token, methods
 auth_bp.add_url_rule('/forgot-password', view_func=AuthController.forgot_password, methods=['POST'])
 auth_bp.add_url_rule('/forgot-change-password', view_func=AuthController.forgot_change_password, methods=['POST'])
 
+# Cart Routes
+cart_bp.add_url_rule('/', view_func=token_required(CartController.get_carts), methods=['GET'])
+cart_bp.add_url_rule('/add-to-cart', view_func=token_required(CartController.add_to_cart), methods=['POST'])
+cart_bp.add_url_rule('/decrease-cart', view_func=token_required(CartController.decrease_cart), methods=['PUT'])
+cart_bp.add_url_rule('/update-quantity', view_func=token_required(CartController.update_cart_quantity), methods=['PUT'])
 
 # wishlist Routes
 wishlist_bp.add_url_rule('/add-to-wishlist', view_func=token_required(WishlistController.add_to_wishlist), methods=['POST'])
