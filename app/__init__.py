@@ -1,5 +1,5 @@
 
-from flask import Flask
+from flask import Flask, redirect
 from flask_migrate import Migrate
 from app.configs.config import Config
 from app.configs.connector import db, migrate, jwt,mail  # Import extensions
@@ -38,7 +38,7 @@ def create_app():
     # Define basic routes for DB creation and seeding
     @app.route('/')
     def index():
-       return 'HELLO WORLD'
+       return redirect('https://documenter.getpostman.com/view/40195523/2sAYBd7o1D')
    
    
     @app.route('/create-all-db')
