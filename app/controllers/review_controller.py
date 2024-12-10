@@ -34,6 +34,11 @@ class ReviewController:
         return Response.success(data=response, message="Review fetched successfully", code=200)
     
     @staticmethod
+    def get_good_reviews():
+        response = ReviewService.get_good_reviews()
+        return Response.success(data=response, message="Good reviews fetched successfully", code=200)
+    
+    @staticmethod
     def delete_review():
         data = request.get_json()
         data['user_id'] = json.loads(get_jwt_identity())['user_id']

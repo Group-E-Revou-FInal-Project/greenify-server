@@ -19,6 +19,15 @@ class ReviewService:
             return {'error': f'message'}
         
     @staticmethod
+    def get_good_reviews():
+        reviews = Review.query.filter(Review.rating >= 4, Review.is_deleted == False).all()
+        
+        if reviews is None:
+            return []
+        
+        return { 'reviews': [review.to_dict() for review in reviews] }
+        
+    @staticmethod
     def get_reviews(user_id):
         reviews = Review.query.filter_by(user_id=user_id, is_deleted=False).all()
         

@@ -28,7 +28,8 @@ class Cart(db.Model):
             'user_id': self.user_id,
             'product_id': self.product_id,
             'quantity': self.quantity,
-            'total_price': self.product.price * self.quantity,
+            'eco_point': self.product.eco_point,
+            'total_price': self.product.price * self.product.discount / 100 * self.quantity if self.product.discount else self.product.price * self.quantity,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
