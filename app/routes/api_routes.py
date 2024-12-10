@@ -9,6 +9,7 @@ from app.controllers.UserInterestController import UserInterestController
 from app.controllers.wishlist_controller import WishlistController
 from app.controllers.voucher_controller import VoucherController
 from app.controllers.review_controller import ReviewController
+from app.controllers.user_address_controller import UserAddressController
 from app.middlewares.auth_middleware import admin_required,seller_required, token_required, two_fa_required 
 
 
@@ -21,6 +22,7 @@ cart_bp = Blueprint('cart', __name__)
 wishlist_bp = Blueprint('wishlist', __name__)
 voucher_bp  = Blueprint('voucher', __name__)
 review_bp = Blueprint('review', __name__)
+address_bp = Blueprint('address', __name__)
 
 # User Routes
 user_bp.add_url_rule('/email-validation', view_func=UserController.email_validaton, methods=['POST'])
@@ -87,6 +89,15 @@ review_bp.add_url_rule('/add-review', view_func=token_required(ReviewController.
 review_bp.add_url_rule('/get-reviews', view_func=token_required(ReviewController.get_reviews), methods=['GET'])
 review_bp.add_url_rule('/good-reviews', view_func=ReviewController.get_good_reviews, methods=['GET'])
 review_bp.add_url_rule('/delete-review', view_func=token_required(ReviewController.delete_review), methods=['DELETE'])
+
+# Adress Routes
+address_bp.add_url_rule('/add-address', view_func=token_required(UserAddressController.add_address), methods=['POST'])
+address_bp.add_url_rule('/get-address', view_func=token_required(UserAddressController.get_address), methods=['GET'])
+address_bp.add_url_rule('/update-address/<int:address_id>', view_func=token_required(UserAddressController.update_address), methods=['PUT'])
+address_bp.add_url_rule('/delete-address/<int:address_id>', view_func=token_required(UserAddressController.delete_address), methods=['DELETE'])
+address_bp.add_url_rule('/toggle-active-status/<int:address_id>', view_func=token_required(UserAddressController.toggle_active_status), methods=['PUT'])
+address_bp.add_url_rule('/get-user-address', view_func=token_required(UserAddressController.get_addresses_by_user_id), methods=['GET'])
+address_bp.add_url_rule('/get-user-address-by-id', view_func=token_required(UserAddressController.get_address_by_user_address_id), methods=['GET'])
 
 
 

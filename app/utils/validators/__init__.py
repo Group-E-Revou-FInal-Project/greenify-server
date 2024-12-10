@@ -94,3 +94,20 @@ class Review(BaseModel):
     rating: Optional[float] = Field(None, ge=1.0, le=5.0)
     review: Optional[str] = Field(None, max_length=2500)
     
+class createAddress(BaseModel):
+    user_id: int    
+    address: str
+    city: str
+    postal_code: str
+    province: str
+    name: str
+    phone_number: str
+    
+class updateAddress(BaseModel):
+    address: Optional[str]
+    city: Optional[str]
+    postal_code: Optional[str]
+    province: Optional[str]
+    name: Optional[str]
+    phone_number: Optional[str]
+    
