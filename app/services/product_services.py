@@ -147,14 +147,14 @@ class ProductService:
         # Calculate pagination details
         total_pages = products.pages
         total_products = products.total
-        # start_page = (page - 1) * per_page
-        # end_page = start_page + per_page
-        # products_paginated = products.items[start_page:end_page]
+        start_page = (page - 1) * per_page
+        end_page = start_page + per_page
+        products_paginated = products.items[start_page:end_page]
             
         return {
                 "total_pages": total_pages, 
                 "total_products": total_products, 
-                "products": [product.to_dict() for product in products.items]
+                "products": [product.to_dict() for product in products_paginated]
         }              
     
     @staticmethod

@@ -40,7 +40,7 @@ profile_bp.add_url_rule('/interests', view_func=token_required(UserInterestContr
 profile_bp.add_url_rule('/interests', view_func=token_required(UserInterestController.remove_interest), methods=['DELETE'])
 
 # Product Routes
-product_bp.add_url_rule('/', view_func=ProductController.get_products_by_filters, methods=['GET'])
+product_bp.add_url_rule('/', view_func=ProductController.get_products, methods=['GET'])
 product_bp.add_url_rule('/category', view_func=ProductController.add_category, methods=['POST'])
 product_bp.add_url_rule('/add-product', view_func=token_required(seller_required(ProductController.add_product)), methods=['POST'])
 product_bp.add_url_rule('/<int:product_id>', view_func=ProductController.get_product_by_id, methods=['GET'])
@@ -83,6 +83,7 @@ voucher_bp.add_url_rule('/get-user-voucher', view_func=token_required(VoucherCon
 # Review Routes
 review_bp.add_url_rule('/add-review', view_func=token_required(ReviewController.add_review), methods=['POST'])
 review_bp.add_url_rule('/get-reviews', view_func=token_required(ReviewController.get_reviews), methods=['GET'])
+review_bp.add_url_rule('/good-reviews', view_func=ReviewController.get_good_reviews, methods=['GET'])
 review_bp.add_url_rule('/delete-review', view_func=token_required(ReviewController.delete_review), methods=['DELETE'])
 
 
