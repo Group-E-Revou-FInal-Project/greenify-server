@@ -81,4 +81,16 @@ class VoucherController:
             return Response.error(message=response["error"], code=400)
         
         return Response.success(data=response, message="Voucher used successfully", code=200)
+    def deactivate_voucher(voucher_id):
+        response = VoucherService.deactivate_voucher(voucher_id)
+        if "error" in response:
+            return Response.error(message=response["error"], code=404)
+        return Response.success(data=None, message=response["message"], code=200)
+
+    @staticmethod
+    def reactivate_voucher(voucher_id):
+        response = VoucherService.reactivate_voucher(voucher_id)
+        if "error" in response:
+            return Response.error(message=response["error"], code=404)
+        return Response.success(data=None, message=response["message"], code=200)
         
