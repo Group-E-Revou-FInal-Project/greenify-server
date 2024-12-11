@@ -144,7 +144,6 @@ class AuthController:
             <p>Gunakan kode OTP di bawah ini untuk dapat melakukan verifikasi 2FA pada akun Anda:</p>
             <h3 style="color: #32a852; text-align: center;">{current_otp}</h3>
             <p>OTP hanya berlaku selama 1 menit:</p>
-            <p><a href="https://example.com/provisioning?otp={current_otp}" style="color: #32a852; text-decoration: none;">https://example.com/provisioning?otp={current_otp}</a></p>
             """
             send_email(user_email, header, content, subject)
         
@@ -210,7 +209,6 @@ class AuthController:
             <p>Gunakan kode OTP di bawah ini untuk dapat melakukan reset password pada akun Anda:</p>
             <h3 style="color: #32a852; text-align: center;">{otp_code}</h3>
             <p>OTP hanya berlaku selama 1 menit:</p>
-            <p><a href="https://example.com/provisioning?otp={otp_code}" style="color: #32a852; text-decoration: none;">https://example.com/provisioning?otp={otp_code}</a></p>
             """
             response = send_email(user_email, header, content, subject)
             if response is not None and 'error' in response:
