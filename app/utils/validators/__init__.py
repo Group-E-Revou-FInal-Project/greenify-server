@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import Optional
 from pydantic import BaseModel, EmailStr, Field, condecimal
 from app.models.users import Gender
+import re
 
 class OTPCode(BaseModel):
     email: EmailStr
@@ -63,7 +64,7 @@ class AddWishlist(BaseModel):
     product_id    : int  
     
 class AddVoucher(BaseModel):
-    user_id: int
+    seller_id: int
     product_id: int
     kode_voucher: str = Field(..., max_length=50)
     expired: datetime
@@ -85,12 +86,9 @@ class Cart(BaseModel):
     user_id: int
     product_id: int
     quantity: Optional[int] = 1
-    
-from pydantic import BaseModel, Field, validator
 
 class Review(BaseModel):
     product_id: int
     user_id: int
     rating: Optional[float] = Field(None, ge=1.0, le=5.0)
     review: Optional[str] = Field(None, max_length=2500)
-    

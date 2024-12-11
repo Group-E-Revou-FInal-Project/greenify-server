@@ -8,3 +8,7 @@ class OrderStatus(Enum):
     PENDING = 'pending'
     CANCELLED = 'cancelled'
     COMPLETED = 'completed'
+    
+class TransactionStatus(Enum):
+    CANCELLED = 'cancelled'
+    COMPLETED = 'completed'

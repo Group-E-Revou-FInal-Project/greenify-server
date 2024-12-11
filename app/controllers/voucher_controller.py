@@ -3,7 +3,7 @@ from flask_jwt_extended import get_jwt_identity
 from pydantic import ValidationError
 from app.services.voucher_service import VoucherService
 from app.constants.response_status import Response
-from app.utils.validators import UpdateVoucher
+from app.utils.validators import UpdateVoucher, AddVoucher
 
 class VoucherController:
     @staticmethod
@@ -12,7 +12,7 @@ class VoucherController:
 
         # Validate input using Pydantic model
         try:
-            validated_data = UpdateVoucher.model_validate(data)
+            validated_data = AddVoucher.model_validate(data)
         except ValidationError as e:
             return Response.error(f"{str(e)}", 400)
 
@@ -69,4 +69,16 @@ class VoucherController:
         user_id = json.loads(get_jwt_identity())['user_id']
         voucher_list = VoucherService.get_user_voucher_list(user_id)
         return Response.success(data=voucher_list, message="Fetched voucher list successfully", code=200)
+    
+    @staticmethod
+    def use_voucher():
+        user_id = json.loads(get_jwt_identity())['user_id']
+        data = request.get_json()
+        
+        response = VoucherService.use_voucher(user_id, data['kode_voucher'], data['invoice_number'])
+        
+        if "error" in response:
+            return Response.error(message=response["error"], code=400)
+        
+        return Response.success(data=response, message="Voucher used successfully", code=200)
         

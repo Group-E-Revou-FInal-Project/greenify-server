@@ -9,6 +9,7 @@ from app.controllers.UserInterestController import UserInterestController
 from app.controllers.wishlist_controller import WishlistController
 from app.controllers.voucher_controller import VoucherController
 from app.controllers.review_controller import ReviewController
+from app.controllers.order_controller import OrderController
 from app.middlewares.auth_middleware import admin_required,seller_required, token_required, two_fa_required 
 
 
@@ -21,6 +22,7 @@ cart_bp = Blueprint('cart', __name__)
 wishlist_bp = Blueprint('wishlist', __name__)
 voucher_bp  = Blueprint('voucher', __name__)
 review_bp = Blueprint('review', __name__)
+order_bp = Blueprint('order', __name__)
 
 # User Routes
 user_bp.add_url_rule('/email-validation', view_func=UserController.email_validaton, methods=['POST'])
@@ -79,12 +81,18 @@ voucher_bp.add_url_rule('/get-voucher', view_func=token_required(VoucherControll
 voucher_bp.add_url_rule('/update-voucher', view_func=token_required(VoucherController.update_voucher), methods=['PUT'])
 voucher_bp.add_url_rule('/delete-voucher', view_func=token_required(VoucherController.delete_voucher), methods=['DELETE'])
 voucher_bp.add_url_rule('/get-user-voucher', view_func=token_required(VoucherController.get_user_voucher_list), methods=['GET'])
+voucher_bp.add_url_rule('/use-voucher', view_func=token_required(VoucherController.use_voucher), methods=['POST'])
 
 # Review Routes
 review_bp.add_url_rule('/add-review', view_func=token_required(ReviewController.add_review), methods=['POST'])
 review_bp.add_url_rule('/get-reviews', view_func=token_required(ReviewController.get_reviews), methods=['GET'])
 review_bp.add_url_rule('/good-reviews', view_func=ReviewController.get_good_reviews, methods=['GET'])
 review_bp.add_url_rule('/delete-review', view_func=token_required(ReviewController.delete_review), methods=['DELETE'])
+
+# Order Routes
+order_bp.add_url_rule('/', view_func=token_required(OrderController.get_all_order), methods=['GET'])
+order_bp.add_url_rule('/create-order', view_func=token_required(OrderController.create_order), methods=['POST'])
+order_bp.add_url_rule('/payment', view_func=token_required(OrderController.payment_order), methods=['POST'])
 
 
 

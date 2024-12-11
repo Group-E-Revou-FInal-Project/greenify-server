@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app.models import voucher
-from app.models.sellers import Seller
+from app.models.orders import Order
+from app.models.order_items import OrderItem
 from app.models.users import User
 from app.models.voucher import Voucher
 from app.configs.connector import db
@@ -158,4 +159,31 @@ class VoucherService:
             return voucher_list
         except Exception as error:
             return {"error": f"Failed to get voucher: {str(error)}"}
+        
+    @staticmethod
+    def use_voucher(user_id, kode_voucher, invoice_number):
+        order = Order.query.filter_by(invoice_number=invoice_number, user_id=user_id).first()
+        orders_item = OrderItem.query.filter_by(order_id=order.id).all()
+        
+        if not orders_item:
+            return {"error": "Order item not found."}
+        
+        voucher = Voucher.query.filter_by(kode_voucher=kode_voucher).first()
+        
+        if not voucher:
+            return {"error": "Voucher not found."}
+        
+        if voucher.is_active == False:
+            return {"error": "Voucher is not active."}
+        
+        if voucher.expired < datetime.now().replace(tzinfo=None):
+            return {"error": "Voucher has expired."}
+        
+        for item in orders_item:
+            if item.product_id == voucher.product_id:
+                item.voucher_id = voucher.id
             
+        db.session.commit()
+        
+        return [item.to_dict() for item in orders_item]
+        
