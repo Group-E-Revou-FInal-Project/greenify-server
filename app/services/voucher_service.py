@@ -42,12 +42,15 @@ class VoucherService:
         return Voucher.query.filter_by(id=voucher_id).first()
 
     @staticmethod
-    def update_voucher(voucher_id, data):
+    def update_voucher(user_id,voucher_id, data):
         voucher = Voucher.query.filter_by(id=voucher_id).first()
+        user_check = User.query.filter_by(id=user_id).first()
         
         if not voucher:
             return None
         
+        if voucher.seller_id != user_check.seller_profile.id:
+            return { "error" : "seller id does not match" }
    
         for key, value in data.items():
             if value is not None:  
@@ -158,4 +161,38 @@ class VoucherService:
             return voucher_list
         except Exception as error:
             return {"error": f"Failed to get voucher: {str(error)}"}
+        
+    @staticmethod
+    def deactivate_voucher(voucher_id):
+        try:
+            voucher = Voucher.query.filter_by(id=voucher_id).first()
+            if not voucher:
+                return {"error": "Voucher not found"}
+            
+            if not voucher.is_active:
+                return {"message": "Voucher is already deactivated"}
+            
+            voucher.is_active = False
+            db.session.commit()
+            return {"message": f"Voucher with ID {voucher_id} successfully deactivated"}
+        except Exception as error:
+            db.session.rollback()
+            return {"error": f"Failed to deactivate voucher: {str(error)}"}
+
+    @staticmethod
+    def reactivate_voucher(voucher_id):
+        try:
+            voucher = Voucher.query.filter_by(id=voucher_id).first()
+            if not voucher:
+                return {"error": "Voucher not found"}
+            
+            if voucher.is_active:
+                return {"message": "Voucher is already active"}
+            
+            voucher.is_active = True
+            db.session.commit()
+            return {"message": f"Voucher with ID {voucher_id} successfully reactivated"}
+        except Exception as error:
+            db.session.rollback()
+            return {"error": f"Failed to reactivate voucher: {str(error)}"}
             

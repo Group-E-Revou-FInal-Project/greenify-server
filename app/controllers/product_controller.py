@@ -83,6 +83,33 @@ class ProductController:
         return Response.success(data=response, message="Success restore product", code=200)
     
     @staticmethod
+    def get_all_products():
+        response = ProductService.get_all_products()
+        if response is None:
+            Response.error(message='Products not found', code=400)
+        return Response.success(data=response, message="Success get data product", code=200)
+    
+    @staticmethod
+    def get_products():
+        category = request.args.get('category')
+        min_price = request.args.get('min_price')
+        max_price = request.args.get('max_price')
+        page = int(request.args.get('page'))
+        per_page = int(request.args.get('per_page'))
+        
+        # if No query params
+        if category is None and min_price is None and max_price is None and page is None and per_page is None:
+            response = ProductService.get_all_products()
+            return Response.success(data=response, message="Success get data product", code=200)
+        
+        response = ProductService.get_products_by_filters(category, min_price, max_price, page, per_page)
+        
+        if response is None:
+            return Response.error(message='Oops, something went wrong', code=400)
+        
+        return Response.success(data=response, message="Success get data product", code=200)
+    
+    @staticmethod
     def landing_product():
         data = request.get_json()
         
@@ -98,7 +125,6 @@ class ProductController:
             return Response.error(message='Oops, something went wrong', code=400)
         
         return response
-    
     
     @staticmethod
     def recommendation_product():

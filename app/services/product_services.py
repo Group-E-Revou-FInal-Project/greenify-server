@@ -127,9 +127,35 @@ class ProductService:
         return product.to_dict()
     
     @staticmethod
-    def get_filter_product(filter, value):
-        products = Product.query.filter_by(**{filter: value}).all()
-        return [product.to_dict() for product in products]
+    def get_products_by_filters(category, min_price, max_price, page, per_page):
+        if max_price is None:
+            max_price = 99999999999
+            
+        if min_price is None:
+            min_price = 0
+            
+        category_id = Category.query.filter_by(category_name=category).first()
+            
+        if category_id is None:
+            products = Product.query.filter(Product.price.between(min_price, max_price))
+        else:
+            products = Product.query.filter(Product.category_id == category_id.id, Product.price.between(min_price, max_price))
+            
+        # Pagination products
+        products = products.paginate(page=page, per_page=per_page, error_out=False)
+        
+        # Calculate pagination details
+        total_pages = products.pages
+        total_products = products.total
+        start_page = (page - 1) * per_page
+        end_page = start_page + per_page
+        products_paginated = products.items[start_page:end_page]
+            
+        return {
+                "total_pages": total_pages, 
+                "total_products": total_products, 
+                "products": [product.to_dict() for product in products_paginated]
+        }              
     
     @staticmethod
     def get_recommendations(user_id, page, per_page):

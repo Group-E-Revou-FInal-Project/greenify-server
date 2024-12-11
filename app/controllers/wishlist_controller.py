@@ -3,6 +3,7 @@ from flask_jwt_extended import get_jwt_identity
 from pydantic import ValidationError
 from app.constants.response_status import Response
 from app.services.wishlist_services import WishlistService
+from app.utils.functions.handle_field_error import handle_field_error
 from app.utils.validators import AddWishlist
 
 class WishlistController:
@@ -14,7 +15,8 @@ class WishlistController:
         try:
             validate_wishlist = AddWishlist.model_validate(data)
         except ValidationError as e:
-            return Response.error(f"{str(e)}", 400)
+            missing_fields = handle_field_error(e)
+            return Response.error(message=missing_fields, code=400)
         
         response = WishlistService.add_to_wishlist(user_id, validate_wishlist.model_dump())
         

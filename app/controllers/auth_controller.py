@@ -2,7 +2,7 @@ import datetime
 import json
 from pydantic import ValidationError
 import pyotp  # For 2FA
-from flask import jsonify, request
+from flask import jsonify, make_response, request
 from app.configs.connector import db
 from flask_jwt_extended import (
     create_access_token, 
@@ -47,27 +47,31 @@ class AuthController:
             expires_delta=datetime.timedelta(hours=1)
         )
         refresh_token = create_refresh_token(identity=json.dumps({'user_id': user.id}))
-
-        if user.two_factor_secret:
-            return Response.success(
-                data={
-                    'message': '2FA enabled, please verify the OTP',
-                    'access_token': access_token,
-                    'refresh_token': refresh_token
-                },
-                message="2FA required.",
-                code=200
-            )
-
-        return Response.success(
-            data={
-                'message': 'Logged in successfully',
-                'access_token': access_token,
-                'refresh_token': refresh_token
-            },
-            message="Logged in successfully.",
-            code=200
+        
+        response = make_response(jsonify({
+        "message": "Logged in successfully.",
+        "data": {
+            "access_token": access_token,  
+            "refresh_token": refresh_token 
+        },
+        "code": 200
+        }))
+        response.set_cookie(
+            "access_token", 
+            access_token, 
+            httponly=True, 
+            secure=True, 
+            samesite='Strict'
         )
+        response.set_cookie(
+            "refresh_token", 
+            refresh_token, 
+            httponly=True, 
+            secure=True, 
+            samesite='Strict'
+        )
+
+        return response
 
     @staticmethod
     def verify_2fa():
@@ -140,7 +144,6 @@ class AuthController:
             <p>Gunakan kode OTP di bawah ini untuk dapat melakukan verifikasi 2FA pada akun Anda:</p>
             <h3 style="color: #32a852; text-align: center;">{current_otp}</h3>
             <p>OTP hanya berlaku selama 1 menit:</p>
-            <p><a href="https://example.com/provisioning?otp={current_otp}" style="color: #32a852; text-decoration: none;">https://example.com/provisioning?otp={current_otp}</a></p>
             """
             send_email(user_email, header, content, subject)
         
@@ -206,7 +209,6 @@ class AuthController:
             <p>Gunakan kode OTP di bawah ini untuk dapat melakukan reset password pada akun Anda:</p>
             <h3 style="color: #32a852; text-align: center;">{otp_code}</h3>
             <p>OTP hanya berlaku selama 1 menit:</p>
-            <p><a href="https://example.com/provisioning?otp={otp_code}" style="color: #32a852; text-decoration: none;">https://example.com/provisioning?otp={otp_code}</a></p>
             """
             response = send_email(user_email, header, content, subject)
             if response is not None and 'error' in response:
