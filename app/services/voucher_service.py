@@ -42,12 +42,15 @@ class VoucherService:
         return Voucher.query.filter_by(id=voucher_id).first()
 
     @staticmethod
-    def update_voucher(voucher_id, data):
+    def update_voucher(user_id,voucher_id, data):
         voucher = Voucher.query.filter_by(id=voucher_id).first()
+        user_check = User.query.filter_by(id=user_id).first()
         
         if not voucher:
             return None
         
+        if voucher.seller_id != user_check.seller_profile.id:
+            return { "error" : "seller id does not match" }
    
         for key, value in data.items():
             if value is not None:  

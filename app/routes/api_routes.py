@@ -91,7 +91,7 @@ review_bp.add_url_rule('/good-reviews', view_func=ReviewController.get_good_revi
 review_bp.add_url_rule('/delete-review', view_func=token_required(ReviewController.delete_review), methods=['DELETE'])
 
 # Adress Routes
-address_bp.add_url_rule('/add-address', view_func=token_required(UserAddressController.add_address), methods=['POST'])
+address_bp.add_url_rule('/add-address', view_func=token_required(UserAddressController.create_address), methods=['POST'])
 address_bp.add_url_rule('/get-address', view_func=token_required(UserAddressController.get_address), methods=['GET'])
 address_bp.add_url_rule('/update-address/<int:address_id>', view_func=token_required(UserAddressController.update_address), methods=['PUT'])
 address_bp.add_url_rule('/delete-address/<int:address_id>', view_func=token_required(UserAddressController.delete_address), methods=['DELETE'])
