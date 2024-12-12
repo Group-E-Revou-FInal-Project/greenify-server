@@ -5,17 +5,20 @@ class CartService:
     
     @staticmethod
     def add_to_cart(data):
-        cart = Cart.query.filter_by(user_id=data['user_id'], product_id=data['product_id']).first()
-        
-        if cart is not None:
-            cart.quantity += 1
-        else:
-            cart = Cart(user_id=data['user_id'], 
-                        product_id=data['product_id'])
-        
-        db.session.add(cart)
-        db.session.commit()
-        
+        try:
+            cart = Cart.query.filter_by(user_id=data['user_id'], product_id=data['product_id']).first()
+            
+            if cart is not None:
+                cart.quantity += 1
+            else:
+                cart = Cart(user_id=data['user_id'], 
+                            product_id=data['product_id'])
+            
+            db.session.add(cart)
+            db.session.commit()
+        except ValueError:
+            db.session.rollback()
+            return None
         return cart.to_dict()
     
     @staticmethod
@@ -40,7 +43,8 @@ class CartService:
             db.session.add(cart)
             db.session.commit()
         except ValueError:
-            return None
+             db.session.rollback()
+             return None
             
         return cart.to_dict()
     
@@ -58,6 +62,7 @@ class CartService:
             db.session.add(cart)
             db.session.commit()
         except ValueError:
+            db.session.rollback()
             return None
             
         return cart.to_dict()

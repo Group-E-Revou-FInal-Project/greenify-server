@@ -61,28 +61,33 @@ class ProductService:
         
     @staticmethod
     def update_product(user_id, product_id, data):
-        product = Product.query.filter_by(id=product_id).first()
-        user_check = User.query.filter_by(id=user_id).first()
-        
-        if product is None:
-            return { "error" : "product not found" }
-        
-        if product.seller_id != user_check.seller_profile.id:
-            return { "error" : "seller id does not match" }
-        
-        product.product_name = data.get('product_name', product.product_name)
-        product.price = data.get('price', product.price)
-        product.discount = data.get('discount', product.discount)
-        product.product_desc = data.get('product_desc', product.product_desc)
-        product.stock = data.get('stock', product.stock)
-        product.min_stock = data.get('min_stock', product.min_stock)
-        product.category_id = data.get('category_id', product.category_id)
-        product.eco_point = data.get('eco_point', product.eco_point)
-        product.recycle_material_percentage = data.get('recycle_material_percentage', product.recycle_material_percentage)
-        product.image_url = data.get('image_url', product.image_url)
-        
-        db.session.add(product)
-        db.session.commit()
+        try:
+            product = Product.query.filter_by(id=product_id).first()
+            user_check = User.query.filter_by(id=user_id).first()
+            
+            if product is None:
+                return { "error" : "product not found" }
+            
+            if product.seller_id != user_check.seller_profile.id:
+                return { "error" : "seller id does not match" }
+            
+            product.product_name = data.get('product_name', product.product_name)
+            product.price = data.get('price', product.price)
+            product.discount = data.get('discount', product.discount)
+            product.product_desc = data.get('product_desc', product.product_desc)
+            product.stock = data.get('stock', product.stock)
+            product.min_stock = data.get('min_stock', product.min_stock)
+            product.category_id = data.get('category_id', product.category_id)
+            product.eco_point = data.get('eco_point', product.eco_point)
+            product.recycle_material_percentage = data.get('recycle_material_percentage', product.recycle_material_percentage)
+            product.image_url = data.get('image_url', product.image_url)
+            
+            db.session.add(product)
+            db.session.commit()
+            
+        except Exception as e:
+            db.session.rollback()
+            return None
         
         return product.to_dict()
         
@@ -105,57 +110,80 @@ class ProductService:
     
     @staticmethod
     def delete_product(id):
-        product = Product.query.filter_by(id=id).first()
-        if product is None:
-            return None        
+        try:
+            product = Product.query.filter_by(id=id).first()
+            if product is None:
+                return None        
 
-        product.soft_delete()
-        db.session.add(product)        
-        db.session.commit()        
+            product.soft_delete()
+            db.session.add(product)        
+            db.session.commit()      
+        except Exception as e:
+            db.session.rollback()
+            return None
+          
         return product.to_dict()
     
     @staticmethod
     def restore_product(id):
-        product = Product.query.filter_by(id=id).first()
-        
-        if product is None:
-            return None        
+        try:
+            product = Product.query.filter_by(id=id).first()
+            
+            if product is None:
+                return None        
 
-        product.restore()
-        db.session.add(product)        
-        db.session.commit()        
+            product.restore()
+            db.session.add(product)        
+            db.session.commit()       
+        except Exception as e:
+            db.session.rollback()
+            return None
         return product.to_dict()
     
     @staticmethod
-    def get_products_by_filters(category, min_price, max_price, page, per_page):
-        if max_price is None:
-            max_price = 99999999999
-            
-        if min_price is None:
-            min_price = 0
-            
-        category_id = Category.query.filter_by(category_name=category).first()
-            
-        if category_id is None:
-            products = Product.query.filter(Product.price.between(min_price, max_price))
-        else:
-            products = Product.query.filter(Product.category_id == category_id.id, Product.price.between(min_price, max_price))
-            
-        # Pagination products
-        products = products.paginate(page=page, per_page=per_page, error_out=False)
+    def get_products_by_filters(category, min_price, max_price, has_discount, page, per_page, sort_order="asc"):
+        # Default price range if not provided
+        min_price = float(min_price) if min_price is not None else 0
+        max_price = float(max_price) if max_price is not None else 99999999999
+
+        # Start building the query
+        query = Product.query.filter(
+            Product.price.between(min_price, max_price),
+            Product.is_deleted == False  # Exclude deleted products
+        )
         
-        # Calculate pagination details
-        total_pages = products.pages
-        total_products = products.total
-        start_page = (page - 1) * per_page
-        end_page = start_page + per_page
-        products_paginated = products.items[start_page:end_page]
-            
+        if category:
+            category_obj = Category.query.filter_by(category_name=category).first()
+            if category_obj:
+                query = query.filter(Product.category_id == category_obj.id)
+
+        if has_discount is not None:
+            if has_discount:  
+                query = query.filter(Product.discount > 0)
+            else: 
+                query = query.filter(Product.discount == None)
+
+        if sort_order == "asc":
+            query = query.order_by(Product.created_at.desc())  
+        elif sort_order == "desc":
+            query = query.order_by(Product.created_at.asc())  
+
+        total_products = query.count()
+
+        products = query.offset((page - 1) * per_page).limit(per_page).all()
+
+        total_pages = ceil(total_products / per_page)
+
         return {
-                "total_pages": total_pages, 
-                "total_products": total_products, 
-                "products": [product.to_dict() for product in products_paginated]
-        }              
+            "products": [product.to_dict() for product in products],
+            "pagination": {
+                "total_products": total_products,
+                "total_pages": total_pages,
+                "current_page": page,
+                "per_page": per_page
+            }
+        }
+
     
     @staticmethod
     def get_recommendations(user_id, page, per_page):

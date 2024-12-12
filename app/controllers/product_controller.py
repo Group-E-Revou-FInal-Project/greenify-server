@@ -91,23 +91,38 @@ class ProductController:
     
     @staticmethod
     def get_products():
-        category = request.args.get('category')
-        min_price = request.args.get('min_price')
-        max_price = request.args.get('max_price')
-        page = int(request.args.get('page'))
-        per_page = int(request.args.get('per_page'))
-        
-        # if No query params
-        if category is None and min_price is None and max_price is None and page is None and per_page is None:
-            response = ProductService.get_all_products()
+        try:
+            # Extract query parameters
+            category = request.args.get('category')
+            min_price = request.args.get('min_price')
+            max_price = request.args.get('max_price')
+            has_discount = request.args.get('has_discount') 
+            last_id = request.args.get('last_id') 
+            per_page = int(request.args.get('per_page', 20))
+            sort_order = request.args.get('sort_order', default='asc')
+            has_discount = has_discount.lower() == 'true' if has_discount is not None else None
+       
+
+
+            response = ProductService.get_products_by_filters(
+                category=category,
+                min_price=min_price,
+                max_price=max_price,
+                has_discount=has_discount,
+                last_id=last_id,
+                per_page=per_page,
+                sort_order=sort_order
+            )
+
             return Response.success(data=response, message="Success get data product", code=200)
-        
-        response = ProductService.get_products_by_filters(category, min_price, max_price, page, per_page)
-        
-        if response is None:
-            return Response.error(message='Oops, something went wrong', code=400)
-        
-        return Response.success(data=response, message="Success get data product", code=200)
+
+        except ValueError:
+            # Handle invalid inputs for pagination or filters
+            return Response.error(message="Invalid parameters", code=400)
+        except Exception as e:
+            # General error handling
+            return Response.error(message=f"Oops, something went wrong: {str(e)}", code=500)
+
     
     @staticmethod
     def landing_product():
