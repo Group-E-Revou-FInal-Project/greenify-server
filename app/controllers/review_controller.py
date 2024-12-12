@@ -55,3 +55,8 @@ class ReviewController:
             return Response.error(message='Review not found', code=400)
         
         return Response.success(data=response, message='Review deleted successfully', code=200)
+    
+    @staticmethod
+    def get_all_seller_reviews(seller_id):
+        response = ReviewService.get_reviews_by_seller(seller_id)
+        return Response.success(data=response, message="Seller reviews fetched successfully", code=200)
