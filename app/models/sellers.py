@@ -13,6 +13,7 @@ class Seller(db.Model):
     phone_number      = db.Column(db.String, nullable=False)
     created_at        = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at        = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc))
+    is_active         = db.Column(db.Boolean, default=True, nullable=False)
 
     # Relationship
     user_profile = db.relationship('User', backref=db.backref('seller_profile', uselist=False, lazy=True))

@@ -91,6 +91,7 @@ class Review(BaseModel):
     invoice_number: str
     product_id: int
     user_id: int
+    id : Optional[int]
     rating: Optional[float] = Field(None, ge=1.0, le=5.0)
     review: Optional[str] = Field(None, max_length=2500)
     review: Optional[str] = Field(None, max_length=2500)

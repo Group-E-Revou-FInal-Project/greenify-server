@@ -1,3 +1,4 @@
+from app.models import transactions_history
 from app.models.carts import Cart
 from app.models.products import Product
 from app.models.orders import Order
@@ -98,3 +99,55 @@ class OrderService:
             return None
         
         return [order.to_dict() for order in orders]
+    @staticmethod
+    def get_user_transaction_history(user_id):
+        transactions = TransactionHistory.query.filter_by(user_id=user_id).all()
+        
+        if transactions is None:
+            return None
+        
+        return [transaction.to_dict() for transaction in transactions]
+    @staticmethod
+    def get_seller_transaction_history(seller_id):
+        transactions = TransactionHistory.query.filter_by(seller_id=seller_id).all()
+        
+        if transactions is None:
+            return None
+        
+        return [transaction.to_dict() for transaction in transactions]
+    
+    @staticmethod 
+    def cancel_order(invoice_number, user_id):
+        try:
+            order = Order.query.filter_by(invoice_number=invoice_number, user_id=user_id).first()
+            
+            if order is None:
+                return None
+            
+            transactions_history = []
+            OrderItem = OrderItem.query.filter_by(order_id=order.id).all()
+            for item in OrderItem:
+                transactions_history.append(
+                TransactionHistory(
+                    invoice_number=order.invoice_number,
+                    user_id=user_id,
+                    seller_id=item.product.seller_id,
+                    price=item.product.price,
+                    eco_point=item.product.eco_point,
+                    quantity=item.quantity,
+                    voucher_id=item.voucher_id,
+                    discount=item.product.discount,
+                    status=OrderStatus.CANCELLED.name
+                )
+            )
+            db.session.add_all(transactions_history)
+            order.status = OrderStatus.CANCELED
+            db.session.add(order)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return None
+        
+        return order.to_dict()
+        
+        

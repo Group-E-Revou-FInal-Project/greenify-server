@@ -33,35 +33,43 @@ class UserService:
         
     @staticmethod
     def otp_validation(data):
-        check_otp = TempUser.query.filter_by(email=data['email'], otp_code=data['otp_code']).first() 
-        check_email = User.query.filter_by(email=data['email']).first()
+        try :
+            check_otp = TempUser.query.filter_by(email=data['email'], otp_code=data['otp_code']).first() 
+            check_email = User.query.filter_by(email=data['email']).first()
+                
+            if check_email is not None:
+                return 'Email already registered'
+                
+            if check_otp is None:
+                return 'Invalid OTP code'
             
-        if check_email is not None:
-            return 'Email already registered'
+            if  check_otp.expires_at > datetime.now():
+                return 'OTP code has expired'
             
-        if check_otp is None:
-            return 'Invalid OTP code'
-        
-        if  check_otp.expires_at > datetime.now():
-            return 'OTP code has expired'
-        
-        check_otp.verified = True
-        
-        db.session.add(check_otp)
-        db.session.commit()
+            check_otp.verified = True
+            
+            db.session.add(check_otp)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            return 'ERROR otp code request does not exist'
         
         return 'OTP code verified'
     
     @staticmethod
     def otp_refresh(data):
-        new_otp = TempUser.query.filter_by(email=data['email']).first()
-        
-        new_otp.otp_code = data["otp_code"]
-        new_otp.expires_at = datetime.now(timezone.utc)
+        try: 
+            new_otp = TempUser.query.filter_by(email=data['email']).first()
+            
+            new_otp.otp_code = data["otp_code"]
+            new_otp.expires_at = datetime.now(timezone.utc)
 
-        db.session.add(new_otp)
-        db.session.commit()
-        
+            db.session.add(new_otp)
+            db.session.commit()
+        except IntegrityError:  
+            db.session.rollback()
+            return None
+
         return new_otp.to_dict()
     
     
