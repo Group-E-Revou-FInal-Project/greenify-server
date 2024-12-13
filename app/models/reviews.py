@@ -6,6 +6,7 @@ class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    transactions_id = db.Column(db.Integer, db.ForeignKey('transactions_history.id'), nullable=False)
     rating = db.Column(db.Float, nullable=False)
     review = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
@@ -15,6 +16,7 @@ class Review(db.Model):
     # Relationships
     product = db.relationship('Product', backref=db.backref('reviews', lazy=True))
     user = db.relationship('User', backref=db.backref('reviews', lazy=True))
+    transactions = db.relationship('TransactionHistory', backref=db.backref('reviews', lazy=True))
     
     @db.validates('rating')
     def validate_rating(self, key, value):
