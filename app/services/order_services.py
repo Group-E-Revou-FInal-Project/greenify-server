@@ -44,7 +44,9 @@ class OrderService:
         return new_order.to_dict()
     
     @staticmethod
-    def payment_order(invoice_number, user_id):
+    def payment_order(data):
+        invoice_number = data['invoice_number']
+        user_id = data['user_id']
         order = Order.query.filter_by(invoice_number=invoice_number, user_id=user_id).first()
         
         if order is None:
@@ -53,7 +55,7 @@ class OrderService:
         order.status = OrderStatus.COMPLETED
         order.invoice_number = generate_invoice_number(user_id, is_temp=False)
         
-        # Add transaction history
+        # Add to transaction history
         transactions_history = []
         orders_items = OrderItem.query.filter_by(order_id=order.id).all()
         for item in orders_items:
@@ -87,9 +89,7 @@ class OrderService:
         if orders is None:
             return None
         
-        return {
-                'orders': [order.to_dict() for order in orders]
-            }
+        return { 'orders': [order.to_dict() for order in orders]}
         
     @staticmethod
     def get_order_by_status(user_id, status):

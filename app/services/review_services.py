@@ -1,16 +1,23 @@
 from app.configs.connector import db
 from app.models.products import Product
 from app.models.reviews import Review
+from app.models.transactions_history import TransactionHistory
 
 class ReviewService:
     
     @staticmethod
     def add_review(data):
         try:
+            transactions = TransactionHistory.query.filter_by(invoice_number=data['invoice_number']).first()
+            
+            if transactions is None:
+                return { 'error': 'Transaction not found' }
+            
             new_review = Review(product_id=data['product_id'], 
                                 user_id=data['user_id'], 
                                 rating=data['rating'], 
-                                review=data['review'])
+                                review=data['review'],
+                                transactions_id=transactions.id)
             
             db.session.add(new_review)
             db.session.commit()

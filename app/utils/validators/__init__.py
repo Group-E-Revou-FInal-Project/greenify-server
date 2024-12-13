@@ -88,6 +88,7 @@ class Cart(BaseModel):
     quantity: Optional[int] = 1
 
 class Review(BaseModel):
+    invoice_number: str
     product_id: int
     user_id: int
     id : Optional[int]
@@ -111,4 +112,7 @@ class updateAddress(BaseModel):
     province: Optional[str]
     name: Optional[str]
     phone_number: Optional[str]
-    
+
+class OrderPayment(BaseModel):
+    invoice_number: str
+    user_id: str
