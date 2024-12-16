@@ -4,6 +4,7 @@ from app.utils.validators import OrderPayment
 from flask import request
 from app.constants.response_status import Response
 from flask_jwt_extended import get_jwt_identity
+from app.models.sellers import Seller
 from app.services.order_services import OrderService
 from app.utils.functions.handle_field_error import handle_field_error
 
@@ -53,11 +54,19 @@ class OrderController:
         return Response.success(data=response, message="Order canceled successfully", code=200)
     
     @staticmethod
-    def get_user_transaction_history(user_id):
+    def get_user_transaction_history():
+        user_id = json.loads(get_jwt_identity())['user_id']
         response = OrderService.get_user_transaction_history(user_id)
         return Response.success(data=response, message="Transaction history fetched successfully", code=200)
     
-    def get_seller_transaction_history(seller_id):
-        response = OrderService.get_seller_transaction_history(seller_id)
+    def get_seller_transaction_history():
+        user_id = json.loads(get_jwt_identity())['user_id']
+
+        # Validate if the user has a seller profile
+        seller = Seller.query.filter_by(user_id=user_id).first()
+        if not seller:
+            return {"error": "You are not authorized to access seller transactions."}, 403
+        response = OrderService.get_seller_transaction_history(seller.id)
+        
         return Response.success(data=response, message="Transaction history fetched successfully", code=200)
     

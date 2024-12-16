@@ -2,7 +2,8 @@
 from flask import Flask, redirect
 from flask_migrate import Migrate
 from app.configs.config import Config
-from app.configs.connector import db, migrate, jwt,mail  # Import extensions
+from app.configs.connector import db, migrate, jwt,mail
+from app.middlewares.auth_middleware import reset_is_seller  # Import extensions
 def create_app():
     
     """Create a new Flask application instance.
@@ -23,7 +24,8 @@ def create_app():
     migrate.init_app(app, db)
     jwt.init_app(app)
     mail.init_app(app)
-
+    app.before_request(reset_is_seller)
+    
     # Register Blueprints
     from app.routes.api_routes import user_bp, profile_bp, auth_bp, product_bp, seller_bp, cart_bp, wishlist_bp, voucher_bp, review_bp, order_bp
 

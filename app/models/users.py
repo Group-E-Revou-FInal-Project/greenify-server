@@ -34,6 +34,7 @@ class User(db.Model):
     
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc))
+    is_seller  = db.Column(db.Boolean, default=False)
     
     #Relationship
     roles    = db.relationship('Role', secondary=user_roles, backref=db.backref('users', lazy=True))

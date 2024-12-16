@@ -247,5 +247,10 @@ class ProductService:
                 for p in paginated_recommendations
             ]
         }
+        
+    @staticmethod
+    def get_all_seller_products(seller_id):
+        products = Product.query.filter_by(seller_id=seller_id).all()
+        return [product.to_dict() for product in products]
     
     

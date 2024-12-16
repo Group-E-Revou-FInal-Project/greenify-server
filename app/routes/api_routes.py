@@ -55,8 +55,12 @@ product_bp.add_url_rule('/recommendation', view_func=token_required(ProductContr
 
 # Seller Routes
 seller_bp.add_url_rule('/create-seller', view_func=token_required(SellerController.create_seller), methods=['POST'])
-seller_bp.add_url_rule('/deactivate-seller', view_func=token_required(SellerController.deactive_seller), methods=['PUT'])
+seller_bp.add_url_rule('/deactivate-seller/<int:seller_id>', view_func=token_required(SellerController.seller_management), methods=['PUT'])
 seller_bp.add_url_rule('/update-seller', view_func=token_required(SellerController.update_seller), methods=['PUT'])
+seller_bp.add_url_rule('/seller-transaction-history', view_func=token_required(seller_required(OrderController.get_seller_transaction_history)), methods=['GET'])
+seller_bp.add_url_rule('/get_all_seller_products', view_func=token_required(seller_required(ProductController.get_all_seller_products)), methods=['GET'])
+seller_bp.add_url_rule('/get-seller-reviews', view_func=token_required(seller_required(ReviewController.get_all_seller_reviews)), methods=['GET'])
+
 
 # Authentication Routes
 auth_bp.add_url_rule('/login', view_func=AuthController.login, methods=['POST'])
@@ -81,20 +85,20 @@ wishlist_bp.add_url_rule('/clear-wishlist', view_func=token_required(WishlistCon
 
 # Voucher Routes
 voucher_bp.add_url_rule('/add-voucher', view_func=token_required(VoucherController.create_voucher), methods=['POST'])
-voucher_bp.add_url_rule('/get-voucher', view_func=token_required(VoucherController.get_voucher), methods=['GET'])       
-voucher_bp.add_url_rule('/update-voucher', view_func=token_required(VoucherController.update_voucher), methods=['PUT'])
-voucher_bp.add_url_rule('/delete-voucher', view_func=token_required(VoucherController.delete_voucher), methods=['DELETE'])
+voucher_bp.add_url_rule('/get-voucher/<int:voucher_id>', view_func=token_required(VoucherController.get_voucher), methods=['GET'])       
+voucher_bp.add_url_rule('/update-voucher/<int:voucher_id>', view_func=token_required(VoucherController.update_voucher), methods=['PUT'])
+voucher_bp.add_url_rule('/delete-voucher/<int:voucher_id>', view_func=token_required(VoucherController.delete_voucher), methods=['DELETE'])
 voucher_bp.add_url_rule('/get-user-voucher', view_func=token_required(VoucherController.get_user_voucher_list), methods=['GET'])
 voucher_bp.add_url_rule('/use-voucher', view_func=token_required(VoucherController.use_voucher), methods=['POST'])
-voucher_bp.add_url_rule('/deactivate-voucher', view_func=token_required(VoucherController.deactivate_voucher), methods=['PUT'])
-voucher_bp.add_url_rule('/reactivate-voucher', view_func=token_required(VoucherController.reactivate_voucher), methods=['PUT'])
+voucher_bp.add_url_rule('/deactivate-voucher/<int:voucher_id>', view_func=token_required(VoucherController.deactivate_voucher), methods=['PUT'])
+voucher_bp.add_url_rule('/reactivate-voucher/<int:voucher_id>', view_func=token_required(VoucherController.reactivate_voucher), methods=['PUT'])
+
 
 # Review Routes
 review_bp.add_url_rule('/add-review', view_func=token_required(ReviewController.add_review), methods=['POST'])
 review_bp.add_url_rule('/get-reviews', view_func=token_required(ReviewController.get_reviews), methods=['GET'])
 review_bp.add_url_rule('/good-reviews', view_func=ReviewController.get_good_reviews, methods=['GET'])
 review_bp.add_url_rule('/delete-review', view_func=token_required(ReviewController.delete_review), methods=['DELETE'])
-review_bp.add_url_rule('/get-seller-reviews', view_func=token_required(ReviewController.get_all_seller_reviews), methods=['GET'])
 
 # Order Routes
 order_bp.add_url_rule('/', view_func=token_required(OrderController.get_all_order), methods=['GET'])
@@ -102,7 +106,6 @@ order_bp.add_url_rule('/create-order', view_func=token_required(OrderController.
 order_bp.add_url_rule('/payment', view_func=token_required(OrderController.payment_order), methods=['POST'])
 order_bp.add_url_rule('/cancel', view_func=token_required(OrderController.cancel_order), methods=['POST'])
 order_bp.add_url_rule('/user-transaction-history', view_func=token_required(OrderController.get_user_transaction_history), methods=['GET'])
-order_bp.add_url_rule('/seller-transaction-history', view_func=token_required(OrderController.get_seller_transaction_history), methods=['GET'])
 
 # Adress Routes
 address_bp.add_url_rule('/add-address', view_func=token_required(UserAddressController.create_address), methods=['POST'])
@@ -111,7 +114,7 @@ address_bp.add_url_rule('/update-address/<int:address_id>', view_func=token_requ
 address_bp.add_url_rule('/delete-address/<int:address_id>', view_func=token_required(UserAddressController.delete_address), methods=['DELETE'])
 address_bp.add_url_rule('/toggle-active-status/<int:address_id>', view_func=token_required(UserAddressController.toggle_active_status), methods=['PUT'])
 address_bp.add_url_rule('/get-user-address', view_func=token_required(UserAddressController.get_addresses_by_user_id), methods=['GET'])
-address_bp.add_url_rule('/get-user-address-by-id', view_func=token_required(UserAddressController.get_address_by_user_address_id), methods=['GET'])
+address_bp.add_url_rule('/get-user-address-by-id/<int:address_id>', view_func=token_required(UserAddressController.get_address_by_user_address_id), methods=['GET'])
 
 
 

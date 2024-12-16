@@ -1,6 +1,7 @@
 import json
 from flask_jwt_extended import get_jwt_identity
 from pydantic import ValidationError
+from app.models.sellers import Seller
 from app.services.review_services import ReviewService
 from flask import request
 from app.utils.validators import Review
@@ -57,6 +58,11 @@ class ReviewController:
         return Response.success(data=response, message='Review deleted successfully', code=200)
     
     @staticmethod
-    def get_all_seller_reviews(seller_id):
-        response = ReviewService.get_reviews_by_seller(seller_id)
+    def get_all_seller_reviews():
+        user_id = json.loads(get_jwt_identity())['user_id']
+        seller = Seller.query.filter_by(user_id=user_id).first()
+        if not seller:
+            return {"error": "You are not authorized to access seller transactions."}, 403
+        
+        response = ReviewService.get_reviews_by_seller(seller.id)
         return Response.success(data=response, message="Seller reviews fetched successfully", code=200)

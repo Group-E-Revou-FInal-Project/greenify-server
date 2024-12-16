@@ -45,10 +45,13 @@ class SellerController:
         
         
     @staticmethod
-    def seller_management(seller_id, action=False):
-        response = SellerService.deactivate_seller(seller_id,action)
+    def seller_management(seller_id):
+        action = request.args.get('action', default=False, type=bool)
+        
+        response = SellerService.deactive_seller(seller_id, action)
+
         if response is None:
             return Response.error(message="You don't have a store", code=400)
-        
+
         return response
          
