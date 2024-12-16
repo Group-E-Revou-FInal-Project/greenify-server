@@ -38,6 +38,7 @@ class VoucherController:
         existing_voucher = VoucherService.get_voucher_by_id(voucher_id)
         if not existing_voucher:
             return Response.error(message='Voucher not found', code=404)
+        
         # Validate input using Pydantic model
         try:
             validated_data = UpdateVoucher.model_validate(data)
@@ -81,6 +82,8 @@ class VoucherController:
             return Response.error(message=response["error"], code=400)
         
         return Response.success(data=response, message="Voucher used successfully", code=200)
+
+    @staticmethod
     def deactivate_voucher(voucher_id):
         response = VoucherService.deactivate_voucher(voucher_id)
         if "error" in response:
@@ -93,4 +96,3 @@ class VoucherController:
         if "error" in response:
             return Response.error(message=response["error"], code=404)
         return Response.success(data=None, message=response["message"], code=200)
-        
