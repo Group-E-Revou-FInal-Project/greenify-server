@@ -1,10 +1,12 @@
 import json
-
+from app.utils.validators.invoince_validate import validate_invoice_number
+from app.utils.validators import OrderPayment
 from flask import request
 from app.constants.response_status import Response
 from flask_jwt_extended import get_jwt_identity
 from app.models.sellers import Seller
 from app.services.order_services import OrderService
+from app.utils.functions.handle_field_error import handle_field_error
 
 class OrderController:
     
@@ -22,10 +24,17 @@ class OrderController:
     
     @staticmethod
     def payment_order():
-        invoice_number = request.get_json()['invoice_number']
-        user_id = json.loads(get_jwt_identity())['user_id']
+        data = request.get_json()
+        data['user_id'] = json.loads(get_jwt_identity())['user_id']
         
-        response = OrderService.payment_order(invoice_number, user_id)
+        try:
+            _ = validate_invoice_number(data['invoice_number'])
+            validate_paymet = OrderPayment.model_validate(data)
+        except Exception as e:
+            message = handle_field_error(e)
+            return Response.error(message=message, code=400)
+        
+        response = OrderService.payment_order(validate_paymet.model_dump(exclude_none=True))
         
         if response is None:
             return Response.error(message="Order not found", code=404)

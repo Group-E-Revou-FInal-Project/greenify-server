@@ -109,6 +109,7 @@ order_bp.add_url_rule('/user-transaction-history', view_func=token_required(Orde
 
 # Adress Routes
 address_bp.add_url_rule('/add-address', view_func=token_required(UserAddressController.create_address), methods=['POST'])
+address_bp.add_url_rule('/get-address', view_func=token_required(UserAddressController.get_address), methods=['GET'])
 address_bp.add_url_rule('/update-address/<int:address_id>', view_func=token_required(UserAddressController.update_address), methods=['PUT'])
 address_bp.add_url_rule('/delete-address/<int:address_id>', view_func=token_required(UserAddressController.delete_address), methods=['DELETE'])
 address_bp.add_url_rule('/toggle-active-status/<int:address_id>', view_func=token_required(UserAddressController.toggle_active_status), methods=['PUT'])

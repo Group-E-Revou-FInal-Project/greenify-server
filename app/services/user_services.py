@@ -13,6 +13,11 @@ class UserService:
     @staticmethod
     def temp_users(data, verified=None): 
         if verified is None: verified = False
+        
+        check_email = User.query.filter_by(email=data['email']).first()
+        if check_email is not None:
+            return None
+        
         temp = TempUser(email=data['email'],
                         otp_code=data['otp_code'])
         temp.set_expiration(1) # 1 minute
