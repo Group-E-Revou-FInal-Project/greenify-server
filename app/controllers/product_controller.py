@@ -5,7 +5,7 @@ from pydantic import ValidationError
 from app.constants.response_status import Response
 from app.models.sellers import Seller
 from app.services.product_services import ProductService 
-from app.utils.validators import AddCategory, Product
+from app.utils.validators import AddCategory, Product, UpdateProduct
 from app.utils.functions.handle_field_error import handle_field_error   
 
 class ProductController:
@@ -48,14 +48,15 @@ class ProductController:
     @staticmethod
     def update_product(product_id):
         data = request.get_json()
+        user_id = json.loads(get_jwt_identity())['user_id']
         
         try:
-            validate_product = Product.model_validate(data)
+            validate_product = UpdateProduct.model_validate(data)
         except ValidationError as e:
             missing_fields = handle_field_error(e)
             return Response.error(message=missing_fields, code=400)
         
-        response = ProductService.update_product(product_id, validate_product.model_dump(exclude_none=True))
+        response = ProductService.update_product(user_id, product_id, validate_product.model_dump(exclude_none=True))
         
         if "error" in response:
             return Response.error(message=response["error"], code=400)
@@ -110,6 +111,10 @@ class ProductController:
     @staticmethod
     def get_products():
         try:
+            if not request.args:
+                response = ProductService.get_all_products()
+                return Response.success(data=response, message="Success get data product", code=200)
+            
             # Extract query parameters
             category = request.args.get('category')
             min_price = request.args.get('min_price')

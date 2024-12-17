@@ -19,10 +19,11 @@ class ReviewController:
         try:
             validated_data = Review.model_validate(data)
         except ValidationError as e:
+            print(f'error: {e}')
             message = handle_field_error(e)
             return Response.error(message=message, code=400)
 
-        response = ReviewService.add_review(validated_data.model_dump())
+        response = ReviewService.add_review(validated_data.model_dump(exclude_none=True))
         if "error" in response:
             return Response.error(message=response["error"], code=400)
 
@@ -40,13 +41,15 @@ class ReviewController:
         return Response.success(data=response, message="Good reviews fetched successfully", code=200)
     
     @staticmethod
-    def delete_review():
+    def delete_review(review_id):
         data = request.get_json()
         data['user_id'] = json.loads(get_jwt_identity())['user_id']
+        data['id'] = review_id
         
         try:
             validate_data = Review.model_validate(data)
         except ValidationError as e:
+            print(f'error: {e}')
             message = handle_field_error(e)
             return Response.error(message=message, code=400)
         
@@ -55,7 +58,7 @@ class ReviewController:
         if response is None:
             return Response.error(message='Review not found', code=400)
         
-        return Response.success(data=response, message='Review deleted successfully', code=200)
+        return Response.success(data=response, message='Reviews deleted successfully', code=200)
     
     @staticmethod
     def get_all_seller_reviews():

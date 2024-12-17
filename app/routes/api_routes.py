@@ -30,7 +30,7 @@ address_bp = Blueprint('address', __name__)
 user_bp.add_url_rule('/email-validation', view_func=UserController.email_validaton, methods=['POST'])
 user_bp.add_url_rule('/otp-validation', view_func=UserController.otp_validation, methods=['POST'])
 user_bp.add_url_rule('/register', view_func=UserController.register_user, methods=['POST'])
-user_bp.add_url_rule('/users', view_func=UserController.get_all_users, methods=['POST'])
+# user_bp.add_url_rule('/users', view_func=UserController.get_all_users, methods=['POST'])
 user_bp.add_url_rule('/otp-refresh', view_func=UserController.otp_refresh, methods=['POST'])
 user_bp.add_url_rule('/add-role', view_func=UserController.add_role, methods=['POST'])
 user_bp.add_url_rule('/change-password', view_func=AuthController.change_password, methods=['POST'])
@@ -55,6 +55,9 @@ product_bp.add_url_rule('/recommendation', view_func=token_required(ProductContr
 
 # Seller Routes
 seller_bp.add_url_rule('/create-seller', view_func=token_required(SellerController.create_seller), methods=['POST'])
+seller_bp.add_url_rule('/seller-management', view_func=token_required(SellerController.seller_management), methods=['PUT'])
+seller_bp.add_url_rule('/update-seller', view_func=token_required(SellerController.update_seller), methods=['PUT'])
+seller_bp.add_url_rule('/profile', view_func=token_required(seller_required(SellerController.get_seller_profile)), methods=['GET'])
 seller_bp.add_url_rule('/deactivate-seller/<int:seller_id>', view_func=token_required(SellerController.seller_management), methods=['PUT'])
 seller_bp.add_url_rule('/update-seller', view_func=token_required(SellerController.update_seller), methods=['PUT'])
 seller_bp.add_url_rule('/seller-transaction-history', view_func=token_required(seller_required(OrderController.get_seller_transaction_history)), methods=['GET'])
@@ -98,7 +101,8 @@ voucher_bp.add_url_rule('/reactivate-voucher/<int:voucher_id>', view_func=token_
 review_bp.add_url_rule('/add-review', view_func=token_required(ReviewController.add_review), methods=['POST'])
 review_bp.add_url_rule('/get-reviews', view_func=token_required(ReviewController.get_reviews), methods=['GET'])
 review_bp.add_url_rule('/good-reviews', view_func=ReviewController.get_good_reviews, methods=['GET'])
-review_bp.add_url_rule('/delete-review', view_func=token_required(ReviewController.delete_review), methods=['DELETE'])
+review_bp.add_url_rule('/delete-review/<int:review_id>', view_func=token_required(ReviewController.delete_review), methods=['DELETE'])
+review_bp.add_url_rule('/get-seller-reviews', view_func=token_required(ReviewController.get_all_seller_reviews), methods=['GET'])
 
 # Order Routes
 order_bp.add_url_rule('/', view_func=token_required(OrderController.get_all_order), methods=['GET'])

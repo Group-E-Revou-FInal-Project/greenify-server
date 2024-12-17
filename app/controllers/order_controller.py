@@ -1,4 +1,6 @@
 import json
+
+from pydantic import ValidationError
 from app.utils.validators.invoince_validate import validate_invoice_number
 from app.utils.validators import OrderPayment
 from flask import request
@@ -28,13 +30,15 @@ class OrderController:
         data['user_id'] = json.loads(get_jwt_identity())['user_id']
         
         try:
-            _ = validate_invoice_number(data['invoice_number'])
-            validate_paymet = OrderPayment.model_validate(data)
-        except Exception as e:
+            data['invoice_number'] = validate_invoice_number(data['invoice_number'])
+            validate_payment = OrderPayment.model_validate(data)
+        except ValidationError as e:
             message = handle_field_error(e)
             return Response.error(message=message, code=400)
+        except ValueError as e:
+            return Response.error(f"{str(e)}", 400)
         
-        response = OrderService.payment_order(validate_paymet.model_dump(exclude_none=True))
+        response = OrderService.payment_order(validate_payment.model_dump(exclude_none=True))
         
         if response is None:
             return Response.error(message="Order not found", code=404)

@@ -37,7 +37,7 @@ class TransactionHistory(db.Model):
             'quantity': self.quantity,
             'voucher_id': self.voucher_id,
             'discount': self.discount,
-            'total_price': calculate_total_prices(self.price, self.quantity, self.discount, self.voucher.discount_percentage),
+            'total_price': calculate_total_prices(self.price, self.quantity, self.discount) if self.voucher_id is None else calculate_total_prices(self.price, self.quantity, self.discount, self.voucher.discount_percentage),
             'status': self.status.name,
             'created_at': self.created_at,
             'updated_at': self.updated_at

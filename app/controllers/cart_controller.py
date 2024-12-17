@@ -22,6 +22,9 @@ class CartController:
         
         response = CartService.add_to_cart(validate_cart.model_dump(exclude_none=True))
         
+        if 'error' in response:
+            return Response.error(message=response['error'], code=400)
+        
         return Response.success(data=response, message='Success add to cart', code=201)
     
     @staticmethod
@@ -37,6 +40,13 @@ class CartController:
         
         response = CartService.decrease_cart(validate_cart.model_dump(exclude_none=True))
         
+        if response is None:
+            return Response.success(data=response, message='Success remove item from cart', code=200)
+        
+        if 'error' in response:
+            return Response.error(message=response['error'], code=400)
+        
+        
         return Response.success(data=response, message='Success decrease cart', code=200)
     
     @staticmethod
@@ -46,6 +56,7 @@ class CartController:
         
         if response == []:
             return Response.success(data=response, message='Cart is empty', code=200)
+        
         
         return Response.success(data=response, message='Success get carts', code=200)
     
@@ -61,5 +72,12 @@ class CartController:
             return Response.error(message=message, code=400)
         
         response = CartService.update_cart_quantity(validate_cart.model_dump(exclude_none=True))
+        
+        if response is None:
+            return Response.success(data=response, message='Success remove item from cart', code=200)
+        
+        if 'error' in response:
+            return Response.error(message=response['error'], code=400)
+        
         
         return Response.success(data=response, message='Success update cart quantity', code=200)

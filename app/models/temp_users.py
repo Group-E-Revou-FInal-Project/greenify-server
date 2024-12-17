@@ -16,6 +16,5 @@ class TempUser(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'email': self.email,
-            'otp_code': self.otp_code,
+            'email': self.email
         }      

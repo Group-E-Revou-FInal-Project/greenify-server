@@ -23,6 +23,6 @@ class OrderItem(db.Model):
             'product_id': self.product_id,
             'order_id': self.order_id,
             'quantity': self.quantity,
-            'total_price': calculate_total_prices(self.product.price, self.quantity, self.product.discount) if self.voucher is None else calculate_total_prices(self.product.price, self.quantity, self.product.discount, self.voucher.discount_percentage),
+            'total_price': calculate_total_prices(self.product.price, self.quantity, self.product.discount, self.voucher.discount_percentage) if self.voucher_id is not None else calculate_total_prices(self.product.price, self.quantity, self.product.discount),
             'created_at': self.created_at,
         }

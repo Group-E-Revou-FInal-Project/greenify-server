@@ -145,7 +145,7 @@ class ProductService:
         # Default price range if not provided
         min_price = float(min_price) if min_price is not None else 0
         max_price = float(max_price) if max_price is not None else 99999999999
-
+        
         # Start building the query
         query = Product.query.filter(
             Product.price.between(min_price, max_price),
