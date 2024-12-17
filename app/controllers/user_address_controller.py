@@ -1,4 +1,6 @@
+import json
 from flask import request
+from flask_jwt_extended import get_jwt_identity
 from pydantic import ValidationError
 from app.services.user_address_services import UserAddressService
 from app.constants.response_status import Response
@@ -17,13 +19,6 @@ class UserAddressController:
         if "error" in response:
             return Response.error(message=response["error"], code=400)
         return Response.success(data=response, message="Address created successfully", code=201)
-
-    @staticmethod
-    def get_address(address_id):
-        address = UserAddressService.get_address_by_id(address_id)
-        if not address:
-            return Response.error(message="Address not found", code=404)
-        return Response.success(data=address.to_dict(), message="Address fetched successfully", code=200)
 
     @staticmethod
     def update_address(address_id):
@@ -50,21 +45,29 @@ class UserAddressController:
         return Response.success(message="Address deleted successfully", code=200)
 
     @staticmethod
-    def toggle_active_status(address_id, is_active):
+    def toggle_active_status(address_id):
+        is_active = request.json.get('is_active')  
+        if is_active is None:
+            return Response.error(message="is_active field is required", code=400)
+
         response = UserAddressService.toggle_active_status(address_id, is_active)
+        
         if "error" in response:
             return Response.error(message=response["error"], code=404)
+        
         return Response.success(data=response, message=response["message"], code=200)
     
     @staticmethod
-    def get_address_by_user_address_id(user_id, address_id):
+    def get_address_by_user_address_id(address_id):
+        user_id = json.loads(get_jwt_identity())['user_id']
         response = UserAddressService.get_address_by_user_id_and_address_id(user_id, address_id)    
         if response is None:
             return Response.error(message="Address not found", code=404)
         return Response.success(data=response, message="Address fetched successfully", code=200)
     
     @staticmethod
-    def get_addresses_by_user_id(user_id):    
+    def get_addresses_by_user_id():    
+        user_id = json.loads(get_jwt_identity())['user_id']
         response = UserAddressService.get_addresses_by_user_id(user_id)
         if response is None:
             return Response.error(message="Addresses not found", code=404)

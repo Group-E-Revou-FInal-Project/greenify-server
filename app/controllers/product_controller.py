@@ -3,6 +3,7 @@ from flask import request
 from flask_jwt_extended import get_jwt_identity
 from pydantic import ValidationError
 from app.constants.response_status import Response
+from app.models.sellers import Seller
 from app.services.product_services import ProductService 
 from app.utils.validators import AddCategory, Product, UpdateProduct
 from app.utils.functions.handle_field_error import handle_field_error   
@@ -90,6 +91,23 @@ class ProductController:
             Response.error(message='Products not found', code=400)
         return Response.success(data=response, message="Success get data product", code=200)
     
+    
+    @staticmethod
+    def get_all_seller_products():
+        user_identity = get_jwt_identity()
+        user_id = user_identity.get('user_id')
+
+        # Validate if the user has a seller profile
+        seller = Seller.query.filter_by(user_id=user_id).first()
+        if not seller:
+            return {"error": "You are not authorized to access seller transactions."}, 403
+        
+        response = ProductService.get_all_seller_products(seller.id)
+        
+        if response is None:
+            Response.error(message='Products not found', code=400)
+        return Response.success(data=response, message="Success get data product", code=200)
+    
     @staticmethod
     def get_products():
         try:
@@ -102,17 +120,15 @@ class ProductController:
             min_price = request.args.get('min_price')
             max_price = request.args.get('max_price')
             has_discount = request.args.get('has_discount') 
-            page = int(request.args.get('page'))
             per_page = int(request.args.get('per_page', 20))
             sort_order = request.args.get('sort_order', default='asc')
             has_discount = has_discount.lower() == 'true' if has_discount is not None else None
-
+       
             response = ProductService.get_products_by_filters(
                 category=category,
                 min_price=min_price,
                 max_price=max_price,
                 has_discount=has_discount,
-                page=page,
                 per_page=per_page,
                 sort_order=sort_order
             )

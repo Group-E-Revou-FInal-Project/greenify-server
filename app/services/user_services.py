@@ -73,7 +73,8 @@ class UserService:
     
     @staticmethod
     def get_user_by_id(user_id):
-        return db.session.get(User, user_id)
+        user = User.query.filter_by(id=user_id).first()
+        return user
 
     @staticmethod
     def register_user(data):
