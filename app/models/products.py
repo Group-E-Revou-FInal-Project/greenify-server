@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-
+from decimal import Decimal
 from sqlalchemy import CheckConstraint
 from app.configs.connector import db
 
@@ -14,6 +14,7 @@ class Product(db.Model):
     product_desc                = db.Column(db.String, nullable=True)
     stock                       = db.Column(db.Integer, nullable=False)
     min_stock                   = db.Column(db.Integer, nullable=False)
+    is_out_of_stock             = db.Column(db.Boolean, default=False, nullable=False)
     category_id                 = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
     eco_point                   = db.Column(db.Integer, nullable=True)
     recycle_material_percentage = db.Column(db.Integer, nullable=True)
@@ -43,7 +44,7 @@ class Product(db.Model):
             'id': self.id,
             'seller_id': self.seller_id,
             'product_name': self.product_name,
-            'price': self.price * (1 - self.discount / 100) if self.discount else self.price,
+            'price': round(self.price * Decimal(1 - self.discount / 100), 2) if self.discount else self.price,
             'discount': self.discount,
             'product_desc': self.product_desc,
             'stok': self.stock,

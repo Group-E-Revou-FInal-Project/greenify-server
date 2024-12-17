@@ -25,6 +25,7 @@ class User(db.Model):
     gender              = db.Column(Enum(Gender), nullable=False)
     phone_number        = db.Column(db.String(20), default=None, nullable=True)
     password_hash       = db.Column(db.String(255), nullable=False)
+    is_seller           = db.Column(db.Boolean, default=False, nullable=False)
     is_active           = db.Column(db.Boolean, default=True)
     oauth_id            = db.Column(db.String(255), nullable=True)
     oauth_provider      = db.Column(db.String(255), nullable=True)

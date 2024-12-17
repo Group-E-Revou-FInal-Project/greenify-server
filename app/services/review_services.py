@@ -8,7 +8,7 @@ class ReviewService:
     @staticmethod
     def add_review(data):
         try:
-            transactions = TransactionHistory.query.filter_by(invoice_number=data['invoice_number']).first()
+            transactions = TransactionHistory.query.filter_by(invoice_number=data['invoice_number'], status='COMPLETED').first()
             
             if transactions is None:
                 return { 'error': 'Transaction not found' }
@@ -23,9 +23,9 @@ class ReviewService:
             db.session.commit()
             
             return new_review.to_dict()
-        except ValueError as message:
+        except ValueError as e:
             db.session.rollback()
-            return {'error': f'message'}
+            return {'error': f'{e}'}
         
     @staticmethod
     def get_good_reviews():
@@ -52,19 +52,20 @@ class ReviewService:
     @staticmethod
     def delete_review(data):
         try:
-            reviews = Review.query.filter_by(id=data['id'], user_id=data['user_id'], product_id=data['product_id']).first()
+            reviews = Review.query.filter_by(id=data['id'], user_id=data['user_id'], product_id=data['product_id']).all()
             if not reviews:
                 return None
             
-            reviews.soft_delete()
+            for review in reviews:
+                review.soft_delete()
 
             db.session.add_all(reviews)
             db.session.commit()
 
+            return [review.to_dict() for review in reviews]
         except Exception as e:
             db.session.rollback()
             return None
-        return [review.to_dict() for review in reviews]
 
     
     def get_reviews_by_seller(seller_id):

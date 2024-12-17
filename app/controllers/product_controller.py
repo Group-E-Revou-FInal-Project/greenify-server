@@ -4,7 +4,7 @@ from flask_jwt_extended import get_jwt_identity
 from pydantic import ValidationError
 from app.constants.response_status import Response
 from app.services.product_services import ProductService 
-from app.utils.validators import AddCategory, Product
+from app.utils.validators import AddCategory, Product, UpdateProduct
 from app.utils.functions.handle_field_error import handle_field_error   
 
 class ProductController:
@@ -47,14 +47,15 @@ class ProductController:
     @staticmethod
     def update_product(product_id):
         data = request.get_json()
+        user_id = json.loads(get_jwt_identity())['user_id']
         
         try:
-            validate_product = Product.model_validate(data)
+            validate_product = UpdateProduct.model_validate(data)
         except ValidationError as e:
             missing_fields = handle_field_error(e)
             return Response.error(message=missing_fields, code=400)
         
-        response = ProductService.update_product(product_id, validate_product.model_dump(exclude_none=True))
+        response = ProductService.update_product(user_id, product_id, validate_product.model_dump(exclude_none=True))
         
         if "error" in response:
             return Response.error(message=response["error"], code=400)
@@ -92,24 +93,26 @@ class ProductController:
     @staticmethod
     def get_products():
         try:
+            if not request.args:
+                response = ProductService.get_all_products()
+                return Response.success(data=response, message="Success get data product", code=200)
+            
             # Extract query parameters
             category = request.args.get('category')
             min_price = request.args.get('min_price')
             max_price = request.args.get('max_price')
             has_discount = request.args.get('has_discount') 
-            last_id = request.args.get('last_id') 
+            page = int(request.args.get('page'))
             per_page = int(request.args.get('per_page', 20))
             sort_order = request.args.get('sort_order', default='asc')
             has_discount = has_discount.lower() == 'true' if has_discount is not None else None
-       
-
 
             response = ProductService.get_products_by_filters(
                 category=category,
                 min_price=min_price,
                 max_price=max_price,
                 has_discount=has_discount,
-                last_id=last_id,
+                page=page,
                 per_page=per_page,
                 sort_order=sort_order
             )

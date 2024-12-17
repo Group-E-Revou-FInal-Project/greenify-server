@@ -34,17 +34,14 @@ class UserService:
     @staticmethod
     def otp_validation(data):
         try :
-            check_otp = TempUser.query.filter_by(email=data['email'], otp_code=data['otp_code']).first() 
-            check_email = User.query.filter_by(email=data['email']).first()
-                
-            if check_email is not None:
-                return 'Email already registered'
+            check_otp = TempUser.query.filter_by(email=data['email'], otp_code=data['otp_code']).first()
                 
             if check_otp is None:
-                return 'Invalid OTP code'
-            
-            if  check_otp.expires_at > datetime.now():
-                return 'OTP code has expired'
+                return { 'error' : 'Invalid OTP code'}
+        
+            expires_at_aware = check_otp.expires_at.replace(tzinfo=timezone.utc)
+            if expires_at_aware < datetime.now(timezone.utc):
+                return {'error': 'OTP code has expired'}
             
             check_otp.verified = True
             
@@ -52,7 +49,7 @@ class UserService:
             db.session.commit()
         except IntegrityError:
             db.session.rollback()
-            return 'ERROR otp code request does not exist'
+            return {'error' : 'ERROR otp code request does not exist'}
         
         return 'OTP code verified'
     
@@ -61,17 +58,18 @@ class UserService:
         try: 
             new_otp = TempUser.query.filter_by(email=data['email']).first()
             
+            if new_otp is None:
+                return { 'error': 'Email not registered' }
+            
             new_otp.otp_code = data["otp_code"]
-            new_otp.expires_at = datetime.now(timezone.utc)
+            new_otp.set_expiration(1) # 1 minute
 
             db.session.add(new_otp)
             db.session.commit()
-        except IntegrityError:  
+            return new_otp.to_dict()
+        except IntegrityError as message:  
             db.session.rollback()
-            return None
-
-        return new_otp.to_dict()
-    
+            return { 'error': f'{message}' }  
     
     @staticmethod
     def get_user_by_id(user_id):
@@ -81,7 +79,7 @@ class UserService:
     def register_user(data):
         verified_email = TempUser.query.filter_by(email=data['email'], verified=True).first()
         email_record = TempUser.query.filter_by(email=data['email']).first()
-        role = Role.query.filter_by(rolename=data['role']).first()
+        role = Role.query.filter_by(rolename='buyer').first()
         
         if verified_email is None:
             return 'Email not verified'

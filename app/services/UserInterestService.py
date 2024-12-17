@@ -47,13 +47,10 @@ class UserInterestService:
         if not list_unique(data['interests']):
             return {'error': 'interest must be unique'}
             
-        
         if not isinstance(data.get('interests'), list) or len(data['interests']) != 3:
             return {'error' : 'You must provide exactly 3 interests'}
         
-        for i, interest_name in enumerate(data['interests']):
-            interest = Category.query.filter_by(category_name=interest_name).first()
-            user.interests[i] = interest
+        user.interests = [Category.query.filter_by(category_name=interest).first()for interest in data['interests']]
         
         db.session.add(user)    
         db.session.commit()

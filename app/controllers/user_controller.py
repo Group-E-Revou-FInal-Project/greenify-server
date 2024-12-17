@@ -57,8 +57,8 @@ class UserController:
         
         response = UserService.otp_validation(validate_otp.model_dump())
         
-        if response != 'OTP code verified':
-            return Response.error(message=response, code=400)
+        if 'error' in response:
+            return Response.error(message=response['error'], code=400)
         
         return Response.success(message=response, code=200)
     
@@ -78,6 +78,9 @@ class UserController:
         
         response = UserService.otp_refresh(data)
         
+        if 'error' in response:
+            return Response.error(message=response['error'], code=400)
+        
         try:
             user_email = email  # Use the validated email
             recipient_name = "Pengguna"
@@ -91,7 +94,6 @@ class UserController:
             <p><a href="https://example.com/provisioning?otp={new_otp}" style="color: #32a852; text-decoration: none;">https://example.com/provisioning?otp={new_otp}</a></p>
             """
             send_email(user_email, header, content, subject)
-        
         except Exception as e:
             return Response.error(f"{str(e)}", 400)
         
@@ -134,9 +136,6 @@ class UserController:
             return Response.error(message=response, code=400)
         
         return Response.success(data=response, message="Success add role", code=200)
-    
-    def get_all_users():
-        return 200
 
         
 

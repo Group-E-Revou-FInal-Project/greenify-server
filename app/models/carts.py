@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from app.configs.connector import db
+from app.utils.functions.calculate_total_prices import calculate_total_prices
 
 class Cart(db.Model):
     __tablename__ = 'carts'
@@ -14,13 +15,12 @@ class Cart(db.Model):
     user = db.relationship('User', backref=db.backref('carts', lazy=True))
     product = db.relationship('Product', backref=db.backref('carts', lazy=True))
     
-    @db.validates('quantity')
-    def validate_quantity(self, key, value):
-        if value <= 0:
-            db.session.delete(self)
-            db.session.commit()
-            raise ValueError("Quantity must be greater than 0")
-        return value
+    # @db.validates('quantity')
+    # def validate_quantity(self, key, value):
+    #     if value <= 0:
+    #         db.session.delete(self)
+    #         db.session.commit()
+    #     return value
 
     def to_dict(self):
         return {
@@ -29,7 +29,7 @@ class Cart(db.Model):
             'product_id': self.product_id,
             'quantity': self.quantity,
             'eco_point': self.product.eco_point,
-            'total_price': self.product.price * self.product.discount / 100 * self.quantity if self.product.discount else self.product.price * self.quantity,
+            'total_price': calculate_total_prices(self.product.price, self.quantity, self.product.discount),
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }

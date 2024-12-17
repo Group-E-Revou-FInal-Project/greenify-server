@@ -14,7 +14,6 @@ class RegisterUser(BaseModel):
     email: EmailStr
     dateofbirth: datetime
     gender: Gender
-    role: str
     interests: list[str]
     password: str
     
@@ -35,6 +34,14 @@ class CreateSeller(BaseModel):
     address: str
     phone_number: str
     
+class UpdateSeller(BaseModel):
+    user_id: int
+    store_name: Optional[str] = None
+    store_description: Optional[str] = None
+    store_logo: Optional[str] = None
+    address: Optional[str] = None
+    phone_number: Optional[str] = None
+    
 class AddCategory(BaseModel):
     category_name: str
     
@@ -49,6 +56,18 @@ class Product(BaseModel):
     eco_point: int
     recycle_material_percentage: int
     image_url: str
+    
+class UpdateProduct(BaseModel):
+    product_name: Optional[str] = None
+    price: Optional[Decimal] = None
+    discount: Optional[Decimal] = None
+    product_desc: Optional[str] = None
+    stock: Optional[int] = None
+    min_stock: Optional[int] = None
+    category_id: Optional[int] = None
+    eco_point: Optional[int] = None
+    recycle_material_percentage: Optional[int] = None
+    image_url: Optional[str] = None
 
 class user_interest(BaseModel):
     user_id: int
@@ -88,12 +107,11 @@ class Cart(BaseModel):
     quantity: Optional[int] = 1
 
 class Review(BaseModel):
-    invoice_number: str
+    invoice_number: Optional[str] = None
     product_id: int
     user_id: int
-    id : Optional[int]
+    id : Optional[int] = None
     rating: Optional[float] = Field(None, ge=1.0, le=5.0)
-    review: Optional[str] = Field(None, max_length=2500)
     review: Optional[str] = Field(None, max_length=2500)
     
 class createAddress(BaseModel):
@@ -115,4 +133,5 @@ class updateAddress(BaseModel):
 
 class OrderPayment(BaseModel):
     invoice_number: str
-    user_id: str
+    user_id: int
+    

@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 
-def validate_invoice_number(cls, value):
+def validate_invoice_number(value):
     """
     Validate the invoice number format.
     Accepts:
