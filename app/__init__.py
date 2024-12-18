@@ -20,7 +20,7 @@ def create_app():
     CORS(app)
     migrate = Migrate(app, db)
     app.config.from_object(Config)
-
+    CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)

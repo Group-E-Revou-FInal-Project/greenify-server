@@ -38,24 +38,31 @@ class ProductController:
     def add_product():
         data = request.get_json()
         user_id = json.loads(get_jwt_identity())['user_id']
+        seller = Seller.query.filter_by(user_id=user_id).first()
+        
+        data['seller_id'] = seller.id
         
         try:
             validate_product = Product.model_validate(data)
         except ValidationError as e:
+          
             missing_fields = handle_field_error(e)
+            print(e.errors())
             return Response.error(message=missing_fields, code=400)
-        
+        print('LOLOS 41')
         response = ProductService.add_product(user_id, validate_product.model_dump())
-        
         if response is None:
             return Response.error(message='Oops, something went wrong', code=400)
         
-        return response
+        return Response.success(data=response, message="Product created successfully", code=201)
     
     @staticmethod
     def update_product(product_id):
         data = request.get_json()
-        user_id = json.loads(get_jwt_identity())['user_id']
+        user_id = json.loads(get_jwt_identity()).get('user_id')
+        
+        if not user_id:
+            return Response.error(message="User ID not found in token", code=400)
         
         try:
             validate_product = UpdateProduct.model_validate(data)
@@ -64,6 +71,9 @@ class ProductController:
             return Response.error(message=missing_fields, code=400)
         
         response = ProductService.update_product(user_id, product_id, validate_product.model_dump(exclude_none=True))
+        print(response)
+        if response is None:
+            return Response.error(message="Failed to update product", code=500)
         
         if "error" in response:
             return Response.error(message=response["error"], code=400)
@@ -102,7 +112,7 @@ class ProductController:
     @staticmethod
     def get_all_seller_products():
         user_identity = get_jwt_identity()
-        user_id = user_identity.get('user_id')
+        user_id = json.loads(get_jwt_identity())['user_id']
 
         # Validate if the user has a seller profile
         seller = Seller.query.filter_by(user_id=user_id).first()
@@ -123,6 +133,8 @@ class ProductController:
                 return Response.success(data=response, message="Success get data product", code=200)
             
             # Extract query parameters
+            words = request.args.get('words')
+            page  = int(request.args.get('page', 1))
             category = request.args.get('category')
             min_price = request.args.get('min_price')
             max_price = request.args.get('max_price')
@@ -137,7 +149,9 @@ class ProductController:
                 max_price=max_price,
                 has_discount=has_discount,
                 per_page=per_page,
-                sort_order=sort_order
+                sort_order=sort_order,
+                words=words,
+                page=page
             )
 
             return Response.success(data=response, message="Success get data product", code=200)
@@ -175,3 +189,10 @@ class ProductController:
         
         recommendations = ProductService.get_recommendations(user_id, page, per_page)
         return Response.success(data=recommendations, message="Success get data recommendation", code=200)
+    
+    @staticmethod
+    def get_all_categories():
+        response = ProductService.get_all_categories()
+        if response is None:
+            return Response.error(message='Categories not found', code=400)
+        return Response.success(data=response, message="Success get data category", code=200)
