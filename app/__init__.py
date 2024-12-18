@@ -51,8 +51,6 @@ def create_app():
     def handle_options():
         if request.method == 'OPTIONS':
             return '', 204
-
-   
    
     @app.route('/create-all-db')
     def create_all_db():
