@@ -48,7 +48,8 @@ class ProductService:
                               min_stock=data['min_stock'], 
                               category_id=data['category_id'],
                               eco_point=data['eco_point'],
-                              recycle_material_percentage=data['recycle_material_percentage'])
+                              recycle_material_percentage=data['recycle_material_percentage'],
+                              image_url=data['image_url'])
         
         try:
             db.session.add(new_product)
@@ -63,14 +64,17 @@ class ProductService:
     def update_product(user_id, product_id, data):
         try:
             product = Product.query.filter_by(id=product_id).first()
-            user_check = User.query.filter_by(id=user_id).first()
-            
             if product is None:
-                return { "error" : "product not found" }
-            
+                return {"error": "product not found"}
+
+            user_check = User.query.filter_by(id=user_id).first()
+            print(user_check)
+            if user_check is None or user_check.seller_profile is None:
+                return {"error": "user or seller profile not found"}
+
             if product.seller_id != user_check.seller_profile.id:
-                return { "error" : "seller id does not match" }
-            
+                return {"error": "seller id does not match"}
+
             product.product_name = data.get('product_name', product.product_name)
             product.price = data.get('price', product.price)
             product.discount = data.get('discount', product.discount)
@@ -81,14 +85,17 @@ class ProductService:
             product.eco_point = data.get('eco_point', product.eco_point)
             product.recycle_material_percentage = data.get('recycle_material_percentage', product.recycle_material_percentage)
             product.image_url = data.get('image_url', product.image_url)
-            
+
             db.session.add(product)
             db.session.commit()
-            
+
+        except IntegrityError as e:
+            db.session.rollback()
+            return {"error": "integrity error occurred", "details": str(e)}
         except Exception as e:
             db.session.rollback()
-            return None
-        
+            return {"error": "an unexpected error occurred", "details": str(e)}
+
         return product.to_dict()
         
     @staticmethod
@@ -141,13 +148,14 @@ class ProductService:
         return product.to_dict()
     
     @staticmethod
-    def get_products_by_filters(category, min_price, max_price, has_discount, page, per_page, sort_order="asc"):
+    def get_products_by_filters(words,category, min_price, max_price, has_discount, page, per_page, sort_order="asc"):
         # Default price range if not provided
         min_price = float(min_price) if min_price is not None else 0
         max_price = float(max_price) if max_price is not None else 99999999999
         
         # Start building the query
         query = Product.query.filter(
+            Product.product_name.contains(words),
             Product.price.between(min_price, max_price),
             Product.is_deleted == False  # Exclude deleted products
         )
@@ -250,7 +258,11 @@ class ProductService:
         
     @staticmethod
     def get_all_seller_products(seller_id):
-        products = Product.query.filter_by(seller_id=seller_id).all()
+        products = Product.query.filter_by(seller_id=seller_id, is_deleted=False).all()
+        
+        if not products:
+            return None
+    
         return [product.to_dict() for product in products]
     
     

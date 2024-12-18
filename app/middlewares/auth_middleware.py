@@ -50,31 +50,48 @@ def two_fa_required(fn):
         return fn(*args, **kwargs)
     return wrapper
 
+from flask import request
 
 def reset_is_seller():
     print('MASUK RESET SELLER')
-    """Middleware untuk mengatur is_seller menjadi False jika user berada di luar lingkungan seller."""
-    verify_jwt_in_request(optional=True)  # Memverifikasi token JWT (opsional)
-    identity = get_jwt_identity()
+
+    # Skip OPTIONS requests
+    if request.method == 'OPTIONS':
+        return
+
+    try:
+        # Try verifying the JWT
+        verify_jwt_in_request(optional=True)  # Optional, no error if token is missing
+        identity = get_jwt_identity()
+    except Exception as e:
+        print(f"No valid JWT provided: {e}")
+        return  # No valid token, skip further processing
+
     if not identity:
-        return  # Jika tidak ada JWT, abaikan
+        return  # No identity, do nothing
 
     user_id = json.loads(identity).get('user_id')
+    if not user_id:
+        return
+
     user = UserService.get_user_by_id(user_id)
     if not user:
-        return  # Jika user tidak ditemukan, abaikan
+        return
+
     print(user.email)
-    # Daftar rute khusus untuk seller
-    # Tambahkan jika perlu
+    print(request.path)
+
+    # Define seller-specific routes
     seller_routes = [
         "/api/v1/sellers/dashboard",
         "/api/v1/sellers/products",
         "/api/v1/sellers/reviews",
         "/api/v1/sellers/get-seller-reviews",
     ]
-    print(request.path)
-    # Set `is_seller` ke False jika user keluar dari rute seller
+
+    # Reset `is_seller` if the user is outside seller routes
     if request.path not in seller_routes and user.is_seller:
         print('MASUK RESET SELLER2')
         user.is_seller = False
         db.session.commit()
+
