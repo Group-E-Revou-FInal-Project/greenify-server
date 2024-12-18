@@ -97,7 +97,6 @@ voucher_bp.add_url_rule('/use-voucher', view_func=token_required(VoucherControll
 voucher_bp.add_url_rule('/deactivate-voucher/<int:voucher_id>', view_func=token_required(VoucherController.deactivate_voucher), methods=['PUT'])
 voucher_bp.add_url_rule('/reactivate-voucher/<int:voucher_id>', view_func=token_required(VoucherController.reactivate_voucher), methods=['PUT'])
 
-
 # Review Routes
 review_bp.add_url_rule('/add-review', view_func=token_required(ReviewController.add_review), methods=['POST'])
 review_bp.add_url_rule('/get-reviews', view_func=token_required(ReviewController.get_reviews), methods=['GET'])

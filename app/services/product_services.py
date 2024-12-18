@@ -26,6 +26,11 @@ class ProductService:
             return None
         
     @staticmethod
+    def get_categories(data):
+        categories = Category.query.all()
+        return [category.to_dict() for category in categories]        
+        
+    @staticmethod
     def add_product(user_id, data):
         user = User.query.filter_by(id=user_id).first()
         

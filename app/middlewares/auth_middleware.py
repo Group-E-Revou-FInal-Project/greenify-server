@@ -53,6 +53,8 @@ def two_fa_required(fn):
 from flask import request
 
 def reset_is_seller():
+    if request.method == 'OPTIONS':
+        return None
     print('MASUK RESET SELLER')
 
     # Skip OPTIONS requests

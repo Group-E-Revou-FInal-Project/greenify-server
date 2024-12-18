@@ -7,6 +7,7 @@ from app.constants.response_status import Response
 from app.utils.validators import createAddress, updateAddress
 
 class UserAddressController:
+
     @staticmethod
     def create_address():
         data = request.get_json()

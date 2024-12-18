@@ -56,5 +56,6 @@ class Product(db.Model):
             'eco_point': self.eco_point,
             'image_url': self.image_url,
             'recycle_material': self.recycle_material_percentage,
-            'reviews': [review.to_dict() for review in self.reviews if not review.is_deleted]
+            'reviews': [review.to_dict() for review in self.reviews if not review.is_deleted],
+            'image_url': self.image_url,
         }

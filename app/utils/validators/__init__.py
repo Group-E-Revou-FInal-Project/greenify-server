@@ -14,7 +14,7 @@ class RegisterUser(BaseModel):
     email: EmailStr
     dateofbirth: datetime
     gender: Gender
-    interests: list[str]
+    interests: Optional[list[str]] = None
     password: str
     
 class Role(BaseModel):

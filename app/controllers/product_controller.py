@@ -28,6 +28,13 @@ class ProductController:
         return response
     
     @staticmethod
+    def get_all_categories():
+        response = ProductService.get_all_categories()
+        if response is None:
+            return Response.error(message='Categories not found', code=400)
+        return Response.success(data=response, message="Success get data category", code=200)
+    
+    @staticmethod
     def add_product():
         data = request.get_json()
         user_id = json.loads(get_jwt_identity())['user_id']
