@@ -126,7 +126,8 @@ class ProductController:
                 return Response.success(data=response, message="Success get data product", code=200)
             
             # Extract query parameters
-            category = request.args.get('words')
+            words = request.args.get('words')
+            page  = int(request.args.get('page', 1))
             category = request.args.get('category')
             min_price = request.args.get('min_price')
             max_price = request.args.get('max_price')
@@ -141,7 +142,9 @@ class ProductController:
                 max_price=max_price,
                 has_discount=has_discount,
                 per_page=per_page,
-                sort_order=sort_order
+                sort_order=sort_order,
+                words=words,
+                page=page
             )
 
             return Response.success(data=response, message="Success get data product", code=200)

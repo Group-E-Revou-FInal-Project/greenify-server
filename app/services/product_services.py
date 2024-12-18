@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from math import ceil
 import random
 from flask import Response, jsonify
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError
 from app.configs.connector import db
 from app.models.products import Product
@@ -147,50 +147,62 @@ class ProductService:
             return None
         return product.to_dict()
     
+
     @staticmethod
-    def get_products_by_filters(words,category, min_price, max_price, has_discount, page, per_page, sort_order="asc"):
-        # Default price range if not provided
-        min_price = float(min_price) if min_price is not None else 0
-        max_price = float(max_price) if max_price is not None else 99999999999
-        
-        # Start building the query
-        query = Product.query.filter(
-            Product.product_name.contains(words),
-            Product.price.between(min_price, max_price),
-            Product.is_deleted == False  # Exclude deleted products
-        )
-        
-        if category:
-            category_obj = Category.query.filter_by(category_name=category).first()
-            if category_obj:
-                query = query.filter(Product.category_id == category_obj.id)
+    def get_products_by_filters(words, category, min_price, max_price, has_discount, page, per_page, sort_order="asc"):
+        try:
+            # Default price range if not provided
+            min_price = float(min_price) if min_price is not None else 0
+            max_price = float(max_price) if max_price is not None else 99999999999
 
-        if has_discount is not None:
-            if has_discount:  
-                query = query.filter(Product.discount > 0)
-            else: 
-                query = query.filter(Product.discount == None)
+            # Ensure `words` is not None, as `.contains()` cannot operate on None
+            words = words or ""
 
-        if sort_order == "asc":
-            query = query.order_by(Product.created_at.desc())  
-        elif sort_order == "desc":
-            query = query.order_by(Product.created_at.asc())  
+            # Start building the query
+            query = Product.query.filter(
+                Product.product_name.contains(words),
+                Product.price.between(min_price, max_price),
+                Product.is_deleted.is_(False)  # Use is_ for boolean checks
+            )
 
-        total_products = query.count()
+            # Handle category filter
+            if category:
+                category_obj = Category.query.filter_by(category_name=category).first()
+                if category_obj:
+                    query = query.filter(Product.category_id == category_obj.id)
 
-        products = query.offset((page - 1) * per_page).limit(per_page).all()
+            # Handle has_discount filter
+            if has_discount is not None:
+                if has_discount:  
+                    query = query.filter(Product.discount > 0)
+                else: 
+                    query = query.filter(or_(Product.discount.is_(None), Product.discount == 0))  # Handle NULL or 0 discount
 
-        total_pages = ceil(total_products / per_page)
+            # Handle sort order
+            if sort_order == "asc":
+                query = query.order_by(Product.created_at.asc())  # Ascending order
+            elif sort_order == "desc":
+                query = query.order_by(Product.created_at.desc())  # Descending order
 
-        return {
-            "products": [product.to_dict() for product in products],
-            "pagination": {
-                "total_products": total_products,
-                "total_pages": total_pages,
-                "current_page": page,
-                "per_page": per_page
+            # Pagination logic
+            total_products = query.count()
+            products = query.offset((page - 1) * per_page).limit(per_page).all()
+            total_pages = ceil(total_products / per_page)
+
+            # Return the response
+            return {
+                "products": [product.to_dict() for product in products],
+                "pagination": {
+                    "total_products": total_products,
+                    "total_pages": total_pages,
+                    "current_page": page,
+                    "per_page": per_page
+                }
             }
-        }
+        except Exception as e:
+            # Log the error for debugging
+            print(f"Error in get_products_by_filters: {e}")
+            raise e  # Re-raise the exception for visibility
 
     
     @staticmethod

@@ -19,7 +19,7 @@ def create_app():
     app = Flask(__name__)
     migrate = Migrate(app, db)
     app.config.from_object(Config)
-    CORS(app)
+    CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
