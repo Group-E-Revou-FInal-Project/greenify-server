@@ -1,11 +1,13 @@
 # user_controller.py
 from email_validator import validate_email, EmailNotValidError
 from flask import request
+from pydantic import ValidationError
 from app.constants.response_status import Response
 from app.services.user_services import UserService
 from app.utils.functions.send_emails import send_email
 from app.utils.validators import OTPCode, RegisterUser, Role
 from app.utils.functions.generate_otp import generate_random_otp
+from app.utils.functions.handle_field_error import handle_field_error
 from flask_mail import Mail, Message
 from app import mail
 class UserController:
@@ -105,19 +107,14 @@ class UserController:
         
         try:
             validate_user = RegisterUser.model_validate(data)
-        except ValueError as e:
-            return Response.error(f"{str(e)}", 400)
+        except ValidationError as e:
+            message = handle_field_error(e)
+            return Response.error(message=message, code=400)
         
         response = UserService.register_user(validate_user.model_dump())
         
-        if response == "Role not found":
-            return Response.error(message=response, code=400)
-        
-        if response == "Email not verified":
-            return Response.error(message=response, code=400)
-        
-        if response == "Email already exists":
-            return Response.error(message=response, code=400)
+        if 'error' in response:
+            return Response.error(message=response['error'], code=400)
         
         return Response.success(data=response, message="register success", code=200)
     

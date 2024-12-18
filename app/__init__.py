@@ -1,9 +1,10 @@
 
-from flask import Flask, redirect
+from flask import Flask, redirect, request
 from flask_migrate import Migrate
 from app.configs.config import Config
 from app.configs.connector import db, migrate, jwt,mail
 from app.middlewares.auth_middleware import reset_is_seller  # Import extensions
+from flask_cors import CORS
 def create_app():
     
     """Create a new Flask application instance.
@@ -16,6 +17,7 @@ def create_app():
         A new Flask application instance.
     """
     app = Flask(__name__)
+    CORS(app)
     migrate = Migrate(app, db)
     app.config.from_object(Config)
 
@@ -44,6 +46,12 @@ def create_app():
     @app.route('/')
     def index():
        return redirect('https://documenter.getpostman.com/view/40195523/2sAYBd7o1D')
+   
+    @app.before_request
+    def handle_options():
+        if request.method == 'OPTIONS':
+            return '', 204
+
    
    
     @app.route('/create-all-db')

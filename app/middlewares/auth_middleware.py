@@ -52,6 +52,8 @@ def two_fa_required(fn):
 
 
 def reset_is_seller():
+    if request.method == 'OPTIONS':
+        return None
     print('MASUK RESET SELLER')
     """Middleware untuk mengatur is_seller menjadi False jika user berada di luar lingkungan seller."""
     verify_jwt_in_request(optional=True)  # Memverifikasi token JWT (opsional)

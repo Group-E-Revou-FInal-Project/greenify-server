@@ -83,19 +83,10 @@ class UserService:
         role = Role.query.filter_by(rolename='buyer').first()
         
         if verified_email is None:
-            return 'Email not verified'
+            return {'error': 'Email not verified'}
 
         if role is None:
-            return 'Role not found'
-        
-        if not isinstance(data.get('interests'), list) or len(data['interests']) != 3:
-            return 'You must provide exactly 3 interests'
-        
-        interests = []
-        for interest_name in data['interests']:
-            interest = Category.query.filter_by(category_name=interest_name).first()
-            interests.append(interest)
-        
+            return {'error': 'Role not found'}        
         
         new_user = User(name=data['name'], 
                     email=data['email'], 
@@ -104,8 +95,15 @@ class UserService:
         
         new_user.set_password(data['password'])
         new_user.roles.append(role)
-        new_user.interests.extend(interests)
         
+        if data['interests'] is not None:
+            if not isinstance(data.get('interests'), list) or len(data['interests']) != 3:
+                return 'You must provide exactly 3 interests'
+            interests = []
+            for interest_name in data['interests']:
+                interest = Category.query.filter_by(category_name=interest_name).first()
+                interests.append(interest)
+            new_user.interests.extend(interests)
         try:
             db.session.delete(email_record)
             db.session.add(new_user)
@@ -113,7 +111,7 @@ class UserService:
             return new_user.to_dict()
         except IntegrityError:
             db.session.rollback()
-            return "Email already exists"
+            return {'error': 'Email already exists'}
         
     @staticmethod
     def get_user_data(data):
