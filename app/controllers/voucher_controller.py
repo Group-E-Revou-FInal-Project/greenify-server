@@ -1,6 +1,7 @@
 from flask import json, request
 from flask_jwt_extended import get_jwt_identity
 from pydantic import ValidationError
+from app.models.sellers import Seller
 from app.services.voucher_service import VoucherService
 from app.constants.response_status import Response
 from app.utils.validators import UpdateVoucher, AddVoucher
@@ -96,3 +97,13 @@ class VoucherController:
         if "error" in response:
             return Response.error(message=response["error"], code=404)
         return Response.success(data=None, message=response["message"], code=200)
+    
+    @staticmethod
+    def get_all_seller_voucher():
+        user_id = json.loads(get_jwt_identity())['user_id']
+        seller = Seller.query.filter_by(user_id=user_id).first()
+        if not seller:
+            return {"error": "You are not authorized to access seller transactions."}, 403
+        response = VoucherService.get_all_seller_voucher(seller.id)
+        return Response.success(data=response, message="Fetched voucher list successfully", code=200)
+

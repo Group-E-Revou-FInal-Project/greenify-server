@@ -47,12 +47,14 @@ class Product(db.Model):
             'price': round(self.price * Decimal(1 - self.discount / 100), 2) if self.discount else self.price,
             'discount': self.discount,
             'product_desc': self.product_desc,
-            'stok': self.stock,
-            'min_stok': self.min_stock,
+            'stock': self.stock,
+            'min_stock': self.min_stock,
             'category_id': self.category_id,
+            'category_name': self.category.category_name if self.category else None,  # Include category name
             'created_at': self.created_at,
             'updated_at': self.updated_at,
             'eco_point': self.eco_point,
+            'image_url': self.image_url,
             'recycle_material': self.recycle_material_percentage,
             'reviews': [review.to_dict() for review in self.reviews if not review.is_deleted]
         }

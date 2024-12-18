@@ -1,5 +1,6 @@
 
 from flask import Flask, redirect
+from flask_cors import CORS
 from flask_migrate import Migrate
 from app.configs.config import Config
 from app.configs.connector import db, migrate, jwt,mail
@@ -18,7 +19,7 @@ def create_app():
     app = Flask(__name__)
     migrate = Migrate(app, db)
     app.config.from_object(Config)
-
+    CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)

@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from app.models import voucher
 from app.models.orders import Order
 from app.models.order_items import OrderItem
+from app.models.products import Product
 from app.models.users import User
 from app.models.voucher import Voucher
 from app.configs.connector import db
@@ -219,4 +220,49 @@ class VoucherService:
         except Exception as error:
             db.session.rollback()
             return {"error": f"Failed to reactivate voucher: {str(error)}"}
+        
+    @staticmethod
+    def get_all_seller_voucher(seller_id):
+            try:
+                # Perform a join between Voucher and Product tables
+                result = (
+                    db.session.query(
+                        Voucher.id,
+                        Voucher.seller_id,
+                        Voucher.product_id,
+                        Product.product_name,
+                        Voucher.kode_voucher,
+                        Voucher.expired,
+                        Voucher.voucher_desc,
+                        Voucher.nama_voucher,
+                        Voucher.discount_percentage,
+                        Voucher.is_active,
+                        Voucher.created_at,
+                        Voucher.updated_at
+                    )
+                    .join(Product, Product.id == Voucher.product_id)  # Manual join
+                    .filter(Voucher.seller_id == seller_id)
+                    .all()
+                )
+
+                # Convert query result to list of dictionaries
+                return [
+                    {
+                        "id": row.id,
+                        "seller_id": row.seller_id,
+                        "product_id": row.product_id,
+                        "product_name": row.product_name,  # Product name
+                        "kode_voucher": row.kode_voucher,
+                        "expired": row.expired,
+                        "voucher_desc": row.voucher_desc,
+                        "nama_voucher": row.nama_voucher,
+                        "discount_percentage": row.discount_percentage,
+                        "is_active": row.is_active,
+                        "created_at": row.created_at,
+                        "updated_at": row.updated_at
+                    }
+                    for row in result
+                ]
+            except Exception as error:
+                return {"error": f"Failed to get vouchers: {str(error)}"}
         

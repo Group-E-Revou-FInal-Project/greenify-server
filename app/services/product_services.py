@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from math import ceil
 import random
 from flask import Response, jsonify
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError
 from app.configs.connector import db
 from app.models.products import Product
@@ -48,7 +48,8 @@ class ProductService:
                               min_stock=data['min_stock'], 
                               category_id=data['category_id'],
                               eco_point=data['eco_point'],
-                              recycle_material_percentage=data['recycle_material_percentage'])
+                              recycle_material_percentage=data['recycle_material_percentage'],
+                              image_url=data['image_url'])
         
         try:
             db.session.add(new_product)
@@ -63,14 +64,17 @@ class ProductService:
     def update_product(user_id, product_id, data):
         try:
             product = Product.query.filter_by(id=product_id).first()
-            user_check = User.query.filter_by(id=user_id).first()
-            
             if product is None:
-                return { "error" : "product not found" }
-            
+                return {"error": "product not found"}
+
+            user_check = User.query.filter_by(id=user_id).first()
+            print(user_check)
+            if user_check is None or user_check.seller_profile is None:
+                return {"error": "user or seller profile not found"}
+
             if product.seller_id != user_check.seller_profile.id:
-                return { "error" : "seller id does not match" }
-            
+                return {"error": "seller id does not match"}
+
             product.product_name = data.get('product_name', product.product_name)
             product.price = data.get('price', product.price)
             product.discount = data.get('discount', product.discount)
@@ -81,14 +85,17 @@ class ProductService:
             product.eco_point = data.get('eco_point', product.eco_point)
             product.recycle_material_percentage = data.get('recycle_material_percentage', product.recycle_material_percentage)
             product.image_url = data.get('image_url', product.image_url)
-            
+
             db.session.add(product)
             db.session.commit()
-            
+
+        except IntegrityError as e:
+            db.session.rollback()
+            return {"error": "integrity error occurred", "details": str(e)}
         except Exception as e:
             db.session.rollback()
-            return None
-        
+            return {"error": "an unexpected error occurred", "details": str(e)}
+
         return product.to_dict()
         
     @staticmethod
@@ -140,49 +147,62 @@ class ProductService:
             return None
         return product.to_dict()
     
+
     @staticmethod
-    def get_products_by_filters(category, min_price, max_price, has_discount, page, per_page, sort_order="asc"):
-        # Default price range if not provided
-        min_price = float(min_price) if min_price is not None else 0
-        max_price = float(max_price) if max_price is not None else 99999999999
-        
-        # Start building the query
-        query = Product.query.filter(
-            Product.price.between(min_price, max_price),
-            Product.is_deleted == False  # Exclude deleted products
-        )
-        
-        if category:
-            category_obj = Category.query.filter_by(category_name=category).first()
-            if category_obj:
-                query = query.filter(Product.category_id == category_obj.id)
+    def get_products_by_filters(words, category, min_price, max_price, has_discount, page, per_page, sort_order="asc"):
+        try:
+            # Default price range if not provided
+            min_price = float(min_price) if min_price is not None else 0
+            max_price = float(max_price) if max_price is not None else 99999999999
 
-        if has_discount is not None:
-            if has_discount:  
-                query = query.filter(Product.discount > 0)
-            else: 
-                query = query.filter(Product.discount == None)
+            # Ensure `words` is not None, as `.contains()` cannot operate on None
+            words = words or ""
 
-        if sort_order == "asc":
-            query = query.order_by(Product.created_at.desc())  
-        elif sort_order == "desc":
-            query = query.order_by(Product.created_at.asc())  
+            # Start building the query
+            query = Product.query.filter(
+                Product.product_name.contains(words),
+                Product.price.between(min_price, max_price),
+                Product.is_deleted.is_(False)  # Use is_ for boolean checks
+            )
 
-        total_products = query.count()
+            # Handle category filter
+            if category:
+                category_obj = Category.query.filter_by(category_name=category).first()
+                if category_obj:
+                    query = query.filter(Product.category_id == category_obj.id)
 
-        products = query.offset((page - 1) * per_page).limit(per_page).all()
+            # Handle has_discount filter
+            if has_discount is not None:
+                if has_discount:  
+                    query = query.filter(Product.discount > 0)
+                else: 
+                    query = query.filter(or_(Product.discount.is_(None), Product.discount == 0))  # Handle NULL or 0 discount
 
-        total_pages = ceil(total_products / per_page)
+            # Handle sort order
+            if sort_order == "asc":
+                query = query.order_by(Product.created_at.asc())  # Ascending order
+            elif sort_order == "desc":
+                query = query.order_by(Product.created_at.desc())  # Descending order
 
-        return {
-            "products": [product.to_dict() for product in products],
-            "pagination": {
-                "total_products": total_products,
-                "total_pages": total_pages,
-                "current_page": page,
-                "per_page": per_page
+            # Pagination logic
+            total_products = query.count()
+            products = query.offset((page - 1) * per_page).limit(per_page).all()
+            total_pages = ceil(total_products / per_page)
+
+            # Return the response
+            return {
+                "products": [product.to_dict() for product in products],
+                "pagination": {
+                    "total_products": total_products,
+                    "total_pages": total_pages,
+                    "current_page": page,
+                    "per_page": per_page
+                }
             }
-        }
+        except Exception as e:
+            # Log the error for debugging
+            print(f"Error in get_products_by_filters: {e}")
+            raise e  # Re-raise the exception for visibility
 
     
     @staticmethod
@@ -250,7 +270,11 @@ class ProductService:
         
     @staticmethod
     def get_all_seller_products(seller_id):
-        products = Product.query.filter_by(seller_id=seller_id).all()
+        products = Product.query.filter_by(seller_id=seller_id, is_deleted=False).all()
+        
+        if not products:
+            return None
+    
         return [product.to_dict() for product in products]
     
     
