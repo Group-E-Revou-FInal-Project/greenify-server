@@ -184,8 +184,13 @@ class ProductController:
     @staticmethod
     def recommendation_product():
         try:
-            # Get user_id if authenticated
-            identity = get_jwt_identity()
+            identity = None
+            try:
+                identity = get_jwt_identity()
+            except Exception:
+                # No token or invalid token - ignore
+                pass
+
             user_id = json.loads(identity).get('user_id') if identity else None
 
             page = request.args.get('page', 1, type=int)
