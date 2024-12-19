@@ -52,7 +52,7 @@ product_bp.add_url_rule('/<int:product_id>', view_func=ProductController.get_pro
 product_bp.add_url_rule('/<int:product_id>', view_func=token_required(seller_required(ProductController.update_product)), methods=['PUT'])
 product_bp.add_url_rule('/<int:product_id>', view_func=token_required(seller_required(ProductController.delete_product)), methods=['DELETE'])
 product_bp.add_url_rule('/<int:product_id>', view_func=token_required(seller_required(ProductController.restore_product)), methods=['PATCH'])
-product_bp.add_url_rule('/recommendation', view_func=token_required(ProductController.recommendation_product), methods=['GET'])
+product_bp.add_url_rule('/recommendation', view_func=ProductController.recommendation_product, methods=['GET'])
 
                         
                         

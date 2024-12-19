@@ -212,38 +212,41 @@ class ProductService:
 
     
     @staticmethod
-    def get_recommendations(user_id, page, per_page):
-        # Get the user
-        user = User.query.get(user_id)
-        if not user:
-            return {"message": "User not found"}, 404
-
-        seller = Seller.query.filter_by(user_id=user_id).first()
-        seller_id = seller.id if seller else None
-
-        interest_ids = [category.id for category in user.interests]
-
-        wishlisted_products = db.session.query(Wishlist.product_id).filter_by(user_id=user_id).subquery()
-
+    def get_recommendations(user_id=None, page=1, per_page=10):
         recommendations_query = Product.query
 
-        if interest_ids:
-            recommendations_query = recommendations_query.filter(Product.category_id.in_(interest_ids))
+        # If user_id exists, fetch personalized recommendations
+        if user_id:
+            user = User.query.get(user_id)
+            if not user:
+                return {"message": "User not found"}, 404
 
-        if seller_id:
-            recommendations_query = recommendations_query.filter(Product.seller_id != seller_id)
+            seller = Seller.query.filter_by(user_id=user_id).first()
+            seller_id = seller.id if seller else None
 
-       
-        recommendations_query = recommendations_query.filter(Product.id.in_(wishlisted_products))
+            interest_ids = [category.id for category in user.interests]
 
-     
-        new_arrivals = Product.query.filter(Product.seller_id != seller_id).order_by(Product.id.desc()).limit(20).all()
-        random_products = Product.query.filter(Product.seller_id != seller_id).order_by(func.random()).limit(20).all()
+            wishlisted_products = db.session.query(Wishlist.product_id).filter_by(user_id=user_id).subquery()
 
-        # Paginate the recommendations query
-        recommendations_paginated = recommendations_query.paginate(page=page, per_page=per_page, error_out=False)
+            if interest_ids:
+                recommendations_query = recommendations_query.filter(Product.category_id.in_(interest_ids))
 
-        combined_recommendations = recommendations_paginated.items + new_arrivals + random_products
+            if seller_id:
+                recommendations_query = recommendations_query.filter(Product.seller_id != seller_id)
+
+            recommendations_query = recommendations_query.filter(Product.id.in_(wishlisted_products))
+
+        # If no user_id or no personalized data, fallback to general recommendations
+        new_arrivals = Product.query.order_by(Product.id.desc()).limit(20).all()
+        random_products = Product.query.order_by(func.random()).limit(20).all()
+
+        # If personalized recommendations exist, combine them; otherwise, use fallback
+        if user_id and recommendations_query.count() > 0:
+            personalized_recommendations = recommendations_query.limit(20).all()
+        else:
+            personalized_recommendations = []
+
+        combined_recommendations = personalized_recommendations + new_arrivals + random_products
         unique_recommendations = {product.id: product for product in combined_recommendations}.values()
 
         # Calculate pagination details
@@ -273,6 +276,7 @@ class ProductService:
                 for p in paginated_recommendations
             ]
         }
+
         
     @staticmethod
     def get_all_seller_products(seller_id):

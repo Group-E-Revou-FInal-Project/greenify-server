@@ -183,13 +183,22 @@ class ProductController:
     
     @staticmethod
     def recommendation_product():
-        user_id = json.loads(get_jwt_identity())['user_id']
-        page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 10, type=int)
+        try:
+            # Get user_id if authenticated
+            identity = get_jwt_identity()
+            user_id = json.loads(identity).get('user_id') if identity else None
+
+            page = request.args.get('page', 1, type=int)
+            per_page = request.args.get('per_page', 10, type=int)
+
+            # Fetch recommendations
+            recommendations = ProductService.get_recommendations(user_id, page, per_page)
+            return Response.success(data=recommendations, message="Success get data recommendation", code=200)
+
+        except Exception as e:
+            print(f"Error in recommendation_product: {e}")
+            return Response.error(message="Failed to get recommendations", code=500)
         
-        recommendations = ProductService.get_recommendations(user_id, page, per_page)
-        return Response.success(data=recommendations, message="Success get data recommendation", code=200)
-    
     @staticmethod
     def get_all_categories():
         response = ProductService.get_all_categories()
