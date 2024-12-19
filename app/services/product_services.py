@@ -161,11 +161,12 @@ class ProductService:
             max_price = float(max_price) if max_price is not None else 99999999999
 
             # Ensure `words` is not None, as `.contains()` cannot operate on None
-            words = words or ""
+            words = (words or "").strip().lower() 
+            words = ' '.join(words.split()) 
 
             # Start building the query
             query = Product.query.filter(
-                Product.product_name.contains(words),
+                Product.product_name.ilike(f"%{words}%"),  # Use ilike for case-insensitive search
                 Product.price.between(min_price, max_price),
                 Product.is_deleted.is_(False)  # Use is_ for boolean checks
             )
