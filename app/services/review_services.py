@@ -2,6 +2,7 @@ from app.configs.connector import db
 from app.models.products import Product
 from app.models.reviews import Review
 from app.models.transactions_history import TransactionHistory
+from app.models.users import User
 
 class ReviewService:
     
@@ -29,12 +30,33 @@ class ReviewService:
         
     @staticmethod
     def get_good_reviews():
-        reviews = Review.query.filter(Review.rating >= 4, Review.is_deleted == False).all()
+        reviews = (
+            db.session.query(Review, User)
+            .join(User, Review.user_id == User.id)
+            .filter(Review.rating >= 4, Review.is_deleted == False)
+            .all()
+        )
         
-        if reviews is None:
+        if not reviews:
             return []
         
-        return { 'reviews': [review.to_dict() for review in reviews] }
+        return {
+            'reviews': [
+                {
+                    'id': review.id,
+                    'product_id': review.product_id,
+                    'user_id': review.user_id,
+                    'transactions_id': review.transactions_id,
+                    'rating': review.rating,
+                    'review': review.review,
+                    'created_at': review.created_at,
+                    'updated_at': review.updated_at,
+                    'is_deleted': review.is_deleted,
+                    'profile_picture': user.profile_picture,
+                    'name': user.name
+                } for review, user in reviews
+            ]
+        }
         
     @staticmethod
     def get_reviews(user_id):
