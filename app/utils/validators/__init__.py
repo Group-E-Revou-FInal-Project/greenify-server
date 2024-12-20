@@ -25,6 +25,7 @@ class UpdateProfile(BaseModel):
     dateofbirth: Optional[datetime] = None
     gender: Optional[Gender] = None
     phone_number: Optional[str] = None
+    profile_picture: Optional[str] = None
     
 class CreateSeller(BaseModel):
     user_id: int

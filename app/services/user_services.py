@@ -147,6 +147,7 @@ class UserService:
         user.dateofbirth = data.get('dateofbirth', user.dateofbirth)
         user.phone_number = data.get('phone_number', user.phone_number)
         user.gender = data.get('gender', user.gender)
+        user.profile_picture = data.get('profile_picture', user.profile_picture)
         
         db.session.add(user)
         db.session.commit()
