@@ -162,8 +162,8 @@ class ProductService:
             max_price = float(max_price) if max_price is not None else 99999999999
 
             # Ensure `words` is not None, as `.contains()` cannot operate on None
-            words = (words or "").strip().lower() 
-            words = ' '.join(words.split()) 
+            words = (words or "").strip().lower()
+            words = ' '.join(words.split())
 
             # Start building the query
             query = Product.query.filter(
@@ -180,9 +180,9 @@ class ProductService:
 
             # Handle has_discount filter
             if has_discount is not None:
-                if has_discount:  
+                if has_discount:
                     query = query.filter(Product.discount > 0)
-                else: 
+                else:
                     query = query.filter(or_(Product.discount.is_(None), Product.discount == 0))  # Handle NULL or 0 discount
 
             # Handle sort order
@@ -196,9 +196,48 @@ class ProductService:
             products = query.offset((page - 1) * per_page).limit(per_page).all()
             total_pages = ceil(total_products / per_page)
 
+            # Fetch reviews for products
+            def get_reviews(product_id):
+                reviews = (
+                    db.session.query(Review, User.name)
+                    .join(User, Review.user_id == User.id)
+                    .filter(Review.product_id == product_id, Review.is_deleted == False)
+                    .order_by(Review.created_at.desc())
+                    .all()
+                )
+
+                if reviews:
+                    average_rating = sum(review.Review.rating for review in reviews) / len(reviews)
+                    return {
+                        "average_rating": round(average_rating, 1),
+                        "total_reviews": len(reviews),
+                        "reviews": [
+                            {
+                                "user_name": review.name,
+                                "review": review.Review.review,
+                                "rating": review.Review.rating,
+                                "created_at": review.Review.created_at.strftime("%Y-%m-%d %H:%M:%S")
+                            }
+                            for review in reviews
+                        ]
+                    }
+                return {
+                    "average_rating": None,
+                    "total_reviews": 0,
+                    "reviews": []
+                }
+
+            # Prepare product data with reviews
+            product_data = []
+            for product in products:
+                reviews = get_reviews(product.id)
+                product_dict = product.to_dict()
+                product_dict["reviews"] = reviews
+                product_data.append(product_dict)
+
             # Return the response
             return {
-                "products": [product.to_dict() for product in products],
+                "products": product_data,
                 "pagination": {
                     "total_products": total_products,
                     "total_pages": total_pages,
@@ -210,6 +249,7 @@ class ProductService:
             # Log the error for debugging
             print(f"Error in get_products_by_filters: {e}")
             raise e  # Re-raise the exception for visibility
+
 
     
     @staticmethod
