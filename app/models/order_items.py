@@ -20,7 +20,10 @@ class OrderItem(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
+            'invoice_number': self.order.invoice_number,
             'product_id': self.product_id,
+            'product_name': self.product.product_name,
+            'image_url': self.product.image_url,
             'order_id': self.order_id,
             'quantity': self.quantity,
             'total_price': calculate_total_prices(self.product.price, self.quantity, self.product.discount, self.voucher.discount_percentage) if self.voucher_id is not None else calculate_total_prices(self.product.price, self.quantity, self.product.discount),

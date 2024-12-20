@@ -26,10 +26,12 @@ class Cart(db.Model):
         return {
             'id': self.id,
             'user_id': self.user_id,
+            'product_name': self.product.product_name, 
             'product_id': self.product_id,
             'quantity': self.quantity,
             'eco_point': self.product.eco_point,
             'total_price': calculate_total_prices(self.product.price, self.quantity, self.product.discount),
             'created_at': self.created_at,
-            'updated_at': self.updated_at
+            'updated_at': self.updated_at,
+            'image_url': self.product.image_url
         }
