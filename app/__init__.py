@@ -43,7 +43,6 @@ def create_app():
     app.register_blueprint(order_bp, url_prefix='/api/v1/orders')
     app.register_blueprint(address_bp, url_prefix='/api/v1/addresses')
     
-    # Define basic routes for DB creation and seeding
     @app.route('/')
     def index():
        return redirect('https://documenter.getpostman.com/view/40195523/2sAYBd7o1D')
