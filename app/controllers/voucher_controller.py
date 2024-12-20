@@ -15,10 +15,10 @@ class VoucherController:
         if not seller:
             return {"error": "You are not authorized to access seller transactions."}, 403
         
-        data['seller_id'] = seller.id
+        input_data = {**data, "seller_id": seller.id}
         # Validate input using Pydantic model
         try:
-            validated_data = AddVoucher.model_validate(data)
+            validated_data = AddVoucher.model_validate(input_data)
         except ValidationError as e:
             return Response.error(f"{str(e)}", 400)
 
