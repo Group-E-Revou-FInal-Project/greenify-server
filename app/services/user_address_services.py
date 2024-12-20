@@ -7,7 +7,7 @@ class UserAddressService:
     def create_address(data):
         new_address = UserAddress(
             user_id=data['user_id'],
-            name=data['name'],
+            name=data['name_address'],
             address=data['address'],
             city=data['city'],
             postal_code=data['postal_code'],
@@ -28,7 +28,7 @@ class UserAddressService:
 
     @staticmethod
     def update_address(address_id, data):
-        address = UserAddress.query.filter_by(id=address_id).first()
+        address = UserAddress.query.filter_by(id=address_id, user_id=data['user_id']).first()
         if not address:
             return None
 

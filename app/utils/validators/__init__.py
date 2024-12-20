@@ -120,10 +120,11 @@ class createAddress(BaseModel):
     city: str
     postal_code: str
     province: str
-    name: str
+    name_address: str
     phone_number: str
     
 class updateAddress(BaseModel):
+    user_id: int
     address: Optional[str]
     city: Optional[str]
     postal_code: Optional[str]
