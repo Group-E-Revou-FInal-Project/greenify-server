@@ -10,7 +10,12 @@ class VoucherController:
     @staticmethod
     def create_voucher():
         data = request.get_json()
-
+        user_id = json.loads(get_jwt_identity())['user_id']
+        seller = Seller.query.filter_by(user_id=user_id).first()
+        if not seller:
+            return {"error": "You are not authorized to access seller transactions."}, 403
+        
+        data['seller_id'] = seller.id
         # Validate input using Pydantic model
         try:
             validated_data = AddVoucher.model_validate(data)
