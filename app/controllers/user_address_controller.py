@@ -11,6 +11,7 @@ class UserAddressController:
     @staticmethod
     def create_address():
         data = request.get_json()
+        data['user_id'] = json.loads(get_jwt_identity())['user_id']
         try:
             validate_address = createAddress.model_validate(data)
         except ValidationError as e:
@@ -24,6 +25,7 @@ class UserAddressController:
     @staticmethod
     def update_address(address_id):
         data = request.get_json()
+        data['user_id'] = json.loads(get_jwt_identity())['user_id']
         try:
             validate_address = updateAddress.model_validate(data)
         except ValidationError as e:

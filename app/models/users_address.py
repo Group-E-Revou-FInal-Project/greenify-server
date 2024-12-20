@@ -23,7 +23,7 @@ class UserAddress(db.Model):
         return {
             "id": self.id,
             "user_id": self.user_id,
-            "name": self.name,
+            "name_address": self.name,
             "address": self.address,
             "city": self.city,
             "postal_code": self.postal_code,

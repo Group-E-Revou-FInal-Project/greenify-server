@@ -29,7 +29,7 @@ def create_app():
     app.before_request(reset_is_seller)
     
     # Register Blueprints
-    from app.routes.api_routes import user_bp, profile_bp, auth_bp, product_bp, seller_bp, cart_bp, wishlist_bp, voucher_bp, review_bp, order_bp
+    from app.routes.api_routes import user_bp, profile_bp, auth_bp, product_bp, seller_bp, cart_bp, wishlist_bp, voucher_bp, review_bp, order_bp, address_bp
 
     app.register_blueprint(user_bp, url_prefix='/api/v1/users')
     app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
@@ -41,6 +41,7 @@ def create_app():
     app.register_blueprint(voucher_bp, url_prefix='/api/v1/vouchers')
     app.register_blueprint(review_bp, url_prefix='/api/v1/reviews')
     app.register_blueprint(order_bp, url_prefix='/api/v1/orders')
+    app.register_blueprint(address_bp, url_prefix='/api/v1/addresses')
     
     # Define basic routes for DB creation and seeding
     @app.route('/')
