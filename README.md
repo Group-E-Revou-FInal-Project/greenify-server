@@ -48,12 +48,7 @@ Sustainable choices are now accessible, practical, and affordable. 🌍
 ---
 
 ## 📂 Repository Overview  
-### `client`  
-- **Directory:** Contains frontend code for the Greenify website.  
-- **Framework:** Next.js and React.js.  
-- **Design:** Responsive, modern, and user-friendly.  
 
-### `service`  
 - **Directory:** Contains backend code for the API and server services.  
 - **Framework:** Flask.  
 - **Key Features:** CRUD operations, payment integration, and user authentication.  
