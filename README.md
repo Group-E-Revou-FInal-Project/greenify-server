@@ -40,10 +40,13 @@ Sustainable choices are now accessible, practical, and affordable. 🌍
 ---
 
 ## 🛠️ Tech Stack  
-**Frontend:** React.js, Next.js, TailwindCSS  
-**Backend:** Flask, Python, Flask-SQLAlchemy  
-**Database:** PostgreSQL  
-**Authentication:** OAuth 2.0, JWT  
+- **Flask** - A Python web framework for building APIs.
+- **Flask-SQLAlchemy** - ORM for database management.
+- **Flask-Bcrypt** - Password hashing for user security.
+- **Flask-JWT-Extended** - JSON Web Tokens for authentication.
+- **Flask-Login** - Manages user sessions.
+- **Alembic** - Handles database migrations.
+- **PostgreSQL** - Database system.
 
 ---
 
