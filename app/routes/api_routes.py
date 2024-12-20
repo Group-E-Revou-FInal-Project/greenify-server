@@ -64,7 +64,7 @@ seller_bp.add_url_rule('/update-seller', view_func=token_required(SellerControll
 seller_bp.add_url_rule('/seller-transaction-history', view_func=token_required(seller_required(OrderController.get_seller_transaction_history)), methods=['GET'])
 seller_bp.add_url_rule('/get_all_seller_products', view_func=token_required(seller_required(ProductController.get_all_seller_products)), methods=['GET'])
 seller_bp.add_url_rule('/get-seller-reviews', view_func=token_required(seller_required(ReviewController.get_all_seller_reviews)), methods=['GET'])
-seller_bp.add_url_rule('/get-seller-vouchers/<int:seller_id>', view_func=VoucherController.get_all_seller_voucher, methods=['GET'])
+seller_bp.add_url_rule('/get-seller-vouchers', view_func=VoucherController.get_all_seller_voucher, methods=['GET'])
 
 # Authentication Routes
 auth_bp.add_url_rule('/login', view_func=AuthController.login, methods=['POST'])
