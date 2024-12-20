@@ -38,7 +38,7 @@ def create_app():
     app.register_blueprint(seller_bp, url_prefix='/api/v1/sellers')
     app.register_blueprint(cart_bp, url_prefix='/api/v1/carts')
     app.register_blueprint(wishlist_bp, url_prefix='/api/v1/wishlist')
-    app.register_blueprint(voucher_bp, url_prefix='/api/v1/vouchersget-seller-vouchers')
+    app.register_blueprint(voucher_bp, url_prefix='/api/v1/vouchers')
     app.register_blueprint(review_bp, url_prefix='/api/v1/reviews')
     app.register_blueprint(order_bp, url_prefix='/api/v1/orders')
     app.register_blueprint(address_bp, url_prefix='/api/v1/addresses')
