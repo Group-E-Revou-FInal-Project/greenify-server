@@ -19,6 +19,7 @@ class User(db.Model):
     __tablename__ = 'users'
     
     id                  = db.Column(db.Integer, primary_key=True)
+    profile_picture     = db.Column(db.String(255), nullable=True)
     name                = db.Column(db.String(255), unique=False, nullable=False)
     email               = db.Column(db.String(255), unique=True, nullable=False)
     dateofbirth         = db.Column(db.DateTime, nullable=False)
@@ -50,6 +51,7 @@ class User(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
+            'profile_picture': self.profile_picture,
             'name': self.name,
             'email': self.email,
             'dateofbirth': self.dateofbirth.isoformat(),
