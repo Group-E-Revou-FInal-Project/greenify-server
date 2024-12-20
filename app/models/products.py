@@ -40,22 +40,47 @@ class Product(db.Model):
     category = db.relationship('Category', uselist=False, backref=db.backref('product', uselist=False, lazy=True))
 
     def to_dict(self):
+        # Calculate reviews data
+        valid_reviews = [review for review in self.reviews if not review.is_deleted]
+
+        # Calculate average rating and total reviews
+        average_rating = (
+            round(sum(review.rating for review in valid_reviews) / len(valid_reviews), 1)
+            if valid_reviews
+            else None
+        )
+
+        # Format reviews
+        formatted_reviews = [
+            {
+                "user_name": review.user.name,  # Fetch user name
+                "review": review.review,
+                "rating": review.rating,
+                "created_at": review.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            }
+            for review in valid_reviews
+        ]
+
+        # Build the product dictionary
         return {
-            'id': self.id,
-            'seller_id': self.seller_id,
-            'product_name': self.product_name,
-            'price': round(self.price * Decimal(1 - self.discount / 100), 2) if self.discount else self.price,
-            'discount': self.discount,
-            'product_desc': self.product_desc,
-            'stock': self.stock,
-            'min_stock': self.min_stock,
-            'category_id': self.category_id,
-            'category_name': self.category.category_name if self.category else None,  # Include category name
-            'created_at': self.created_at,
-            'updated_at': self.updated_at,
-            'eco_point': self.eco_point,
-            'image_url': self.image_url,
-            'recycle_material': self.recycle_material_percentage,
-            'reviews': [review.to_dict() for review in self.reviews if not review.is_deleted],
-            'image_url': self.image_url,
+            "id": self.id,
+            "seller_id": self.seller_id,
+            "product_name": self.product_name,
+            "price": f"{self.price:.2f}",  # Ensure price is formatted as a string with 2 decimal places
+            "discount": round(self.discount, 1) if self.discount else None,
+            "product_desc": self.product_desc,
+            "stock": self.stock,
+            "min_stock": self.min_stock,
+            "category_id": self.category_id,
+            "category_name": self.category.category_name if self.category else None,
+            "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S") if self.created_at else None,
+            "updated_at": self.updated_at.strftime("%Y-%m-%d %H:%M:%S") if self.updated_at else None,
+            "eco_point": self.eco_point,
+            "image_url": self.image_url,
+            "recycle_material": self.recycle_material_percentage,
+            "reviews": {
+                "average_rating": average_rating,
+                "total_reviews": len(valid_reviews),
+                "reviews": formatted_reviews,  # List of individual reviews
+            },
         }
