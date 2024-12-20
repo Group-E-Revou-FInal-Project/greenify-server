@@ -106,6 +106,8 @@ review_bp.add_url_rule('/get-seller-reviews', view_func=token_required(ReviewCon
 
 # Order Routes
 order_bp.add_url_rule('/', view_func=token_required(OrderController.get_all_order), methods=['GET'])
+order_bp.add_url_rule('/items/<int:order_id>', view_func=token_required(OrderController.get_order_items), methods=['GET'])
+order_bp.add_url_rule('/<int:order_id>', view_func=token_required(OrderController.get_order_by_id), methods=['GET'])
 order_bp.add_url_rule('/create-order', view_func=token_required(OrderController.create_order), methods=['POST'])
 order_bp.add_url_rule('/payment', view_func=token_required(OrderController.payment_order), methods=['POST'])
 order_bp.add_url_rule('/cancel', view_func=token_required(OrderController.cancel_order), methods=['POST'])
@@ -118,8 +120,3 @@ address_bp.add_url_rule('/delete-address/<int:address_id>', view_func=token_requ
 address_bp.add_url_rule('/toggle-active-status/<int:address_id>', view_func=token_required(UserAddressController.toggle_active_status), methods=['PUT'])
 address_bp.add_url_rule('/get-user-address', view_func=token_required(UserAddressController.get_addresses_by_user_id), methods=['GET'])
 address_bp.add_url_rule('/get-user-address-by-id/<int:address_id>', view_func=token_required(UserAddressController.get_address_by_user_address_id), methods=['GET'])
-
-
-
-
-

@@ -25,12 +25,33 @@ class OrderController:
         return Response.success(data=response, message="Order created successfully", code=201)
     
     @staticmethod
+    def get_order_by_id(order_id):
+        user_id = json.loads(get_jwt_identity())['user_id']
+        
+        response = OrderService.get_order_by_id(order_id, user_id)
+        
+        if 'error' in response:
+            return Response.error(message=response['error'], code=404)
+        
+        return Response.success(data=response, message="Order fetched successfully", code=200)
+    
+    @staticmethod
+    def get_order_items(order_id):
+        user_id = json.loads(get_jwt_identity())['user_id']
+        
+        response = OrderService.get_order_items(order_id, user_id)
+        
+        if 'error' in response:
+            return Response.error(message=response['error'], code=404)
+        
+        return Response.success(data=response, message="Order fetched successfully", code=200)
+    
+    @staticmethod
     def payment_order():
         data = request.get_json()
         data['user_id'] = json.loads(get_jwt_identity())['user_id']
         
         try:
-            data['invoice_number'] = validate_invoice_number(data['invoice_number'])
             validate_payment = OrderPayment.model_validate(data)
         except ValidationError as e:
             message = handle_field_error(e)

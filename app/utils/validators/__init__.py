@@ -132,6 +132,6 @@ class updateAddress(BaseModel):
     phone_number: Optional[str]
 
 class OrderPayment(BaseModel):
-    invoice_number: str
+    order_id: int
     user_id: int
     

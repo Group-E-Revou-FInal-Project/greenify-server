@@ -50,9 +50,9 @@ class OrderService:
     @staticmethod
     def payment_order(data):
         try:
-            invoice_number = data['invoice_number']
+            order_id = data['order_id']
             user_id = data['user_id']
-            order = Order.query.filter_by(invoice_number=invoice_number, user_id=user_id).first()
+            order = Order.query.filter_by(id=order_id, user_id=user_id).first()
             
             if order is None:
                 return None
@@ -101,6 +101,29 @@ class OrderService:
             return None
         
         return { 'orders': [order.to_dict() for order in orders]}
+    
+    @staticmethod
+    def get_order_by_id(order_id, user_id):
+        order = Order.query.filter_by(id=order_id, user_id=user_id).first()
+        
+        if order is None:
+            return { 'error': 'Order not found' }
+        
+        return order.to_dict()
+    
+    @staticmethod
+    def get_order_items(order_id, user_id):
+        order = Order.query.filter_by(id=order_id, user_id=user_id).first()
+        
+        if order is None:
+            return { 'error': 'Order not found' }
+        
+        order_items = OrderItem.query.filter_by(order_id=order_id).all()
+        
+        if order_items is None:
+            return { 'error': 'Order items not found' }
+        
+        return [order_item.to_dict() for order_item in order_items]
         
     @staticmethod
     def get_order_by_status(user_id, status):
