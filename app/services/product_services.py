@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from app.configs.connector import db
 from app.models.products import Product
 from app.models.categories import Category
+from app.models.reviews import Review
 from app.models.sellers import Seller
 from app.models.users import User
 from app.models.wishlist import Wishlist
@@ -256,6 +257,36 @@ class ProductService:
         end_index = start_index + per_page
         paginated_recommendations = list(unique_recommendations)[start_index:end_index]
 
+        # Fetch product reviews
+        def get_product_reviews(product):
+            reviews = (
+                db.session.query(Review, User.name)
+                .join(User, Review.user_id == User.id)
+                .filter(Review.product_id == product.id, Review.is_deleted == False)
+                .all()
+            )
+
+            if reviews:
+                average_rating = sum(review.Review.rating for review in reviews) / len(reviews)
+                return {
+                    "average_rating": round(average_rating, 1),
+                    "total_reviews": len(reviews),
+                    "reviews": [
+                        {
+                            "user_name": review.name,
+                            "review": review.Review.review,
+                            "created_at": review.Review.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                            "rating": review.Review.rating,
+                        }
+                        for review in reviews
+                    ],
+                }
+            return {
+                "average_rating": None,
+                "total_reviews": 0,
+                "reviews": [],
+            }
+
         # Return paginated response
         return {
             "page": page,
@@ -272,10 +303,12 @@ class ProductService:
                     "image_url": p.image_url,
                     "eco_point": p.eco_point,
                     "recycle_material_percentage": p.recycle_material_percentage,
+                    "reviews": get_product_reviews(p),  # Add detailed reviews here
                 }
                 for p in paginated_recommendations
             ]
         }
+
 
         
     @staticmethod
