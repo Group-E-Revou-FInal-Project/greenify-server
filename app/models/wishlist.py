@@ -24,4 +24,21 @@ class Wishlist(db.Model):
             'is_active': self.is_active,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
+            'product': {
+                'id': self.product.id,
+                'name': self.product.product_name,
+                'price': float(self.product.price),  # Convert Decimal to float for JSON serialization
+                'discount': self.product.discount,
+                'final_price': float(self.product.price) * (1 - (float(self.product.discount) / 100)) if self.product.discount else float(self.product.price),
+                'description': self.product.product_desc,
+                'stock': self.product.stock,
+                'is_out_of_stock': self.product.is_out_of_stock,
+                'eco_point': self.product.eco_point,
+                'recycle_material_percentage': self.product.recycle_material_percentage,
+                'image_url': self.product.image_url,
+                'category_id': self.product.category_id,
+                'created_at': self.product.created_at,
+                'updated_at': self.product.updated_at,
+                'is_deleted': self.product.is_deleted,
+            } if self.product else None,  # Include product details only if linked product exists
         }

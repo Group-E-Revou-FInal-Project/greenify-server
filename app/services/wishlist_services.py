@@ -54,9 +54,14 @@ class WishlistService:
     
     @staticmethod
     def get_user_wishlist(user_id):
-        wishlist_items = Wishlist.query.filter_by(user_id=user_id, is_active=True).all()
+        wishlist_items = (
+            db.session.query(Wishlist)
+            .join(Product)  # Ensure the wishlist item has a linked product
+            .filter(Wishlist.user_id == user_id, Wishlist.is_active == True, Product.is_deleted == False)
+            .all()
+        )
         return [item.to_dict() for item in wishlist_items]
-    
+        
     @staticmethod
     def remove_from_wishlist(user_id, product_id):
         wishlist_item = Wishlist.query.filter_by(user_id=user_id, product_id=product_id, is_active=True).first()
