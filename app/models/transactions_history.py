@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 from app.constants.enums import TransactionStatus
 from app.utils.functions.calculate_total_prices import calculate_total_prices
 
+
+
 class TransactionHistory(db.Model):
     __tablename__ = 'transactions_history'
     
