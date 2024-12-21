@@ -80,7 +80,6 @@ class changePassword(BaseModel):
     password : str
     
 class AddWishlist(BaseModel):
-    user_id       : int
     product_id    : int  
     
 class AddVoucher(BaseModel):
