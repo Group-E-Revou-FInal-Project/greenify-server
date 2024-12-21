@@ -63,6 +63,7 @@ seller_bp.add_url_rule('/deactivate-seller/<int:seller_id>', view_func=token_req
 seller_bp.add_url_rule('/update-seller', view_func=token_required(SellerController.update_seller), methods=['PUT'])
 seller_bp.add_url_rule('/seller-transaction-history', view_func=token_required(seller_required(OrderController.get_seller_transaction_history)), methods=['GET'])
 seller_bp.add_url_rule('/seller-metric', view_func=token_required(seller_required(OrderController.get_seller_metrics)), methods=['GET'])
+seller_bp.add_url_rule('/seller-sales', view_func=token_required(seller_required(OrderController.get_sales_data)), methods=['GET'])
 seller_bp.add_url_rule('/get_all_seller_products', view_func=token_required(seller_required(ProductController.get_all_seller_products)), methods=['GET'])
 seller_bp.add_url_rule('/get-seller-reviews', view_func=token_required(seller_required(ReviewController.get_all_seller_reviews)), methods=['GET'])
 seller_bp.add_url_rule('/get-seller-vouchers', view_func=VoucherController.get_all_seller_voucher, methods=['GET'])
